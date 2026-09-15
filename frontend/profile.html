@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Profile - SkillSwap</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="browse-skills.html">Browse Skills</a>
+        <a href="dashboard.html">Dashboard</a>
+    </nav>
+
+
+    <main>
+
+        <div id="profileContainer">
+
+            <p>Loading profile...</p>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        // URL se user ki ID lena
+        const params = new URLSearchParams(window.location.search);
+
+        const userId = params.get("id");
+
+
+        async function loadProfile() {
+
+            const container =
+                document.getElementById("profileContainer");
+
+
+            if (!userId) {
+
+                container.innerHTML =
+                    "<p>User profile not found.</p>";
+
+                return;
+            }
+
+
+            try {
+
+                const response = await fetch(
+                    "http://localhost:5000/api/users/" + userId
+                );
+
+
+                const user = await response.json();
+
+
+                container.innerHTML = `
+
+                    <div class="profile-card">
+
+                        <h1>${user.name}</h1>
+
+                        <p>
+                            <strong>Email:</strong>
+                            ${user.email}
+                        </p>
+
+                        <h3>Can Teach</h3>
+
+                        
+                            <div class="skill-badges">
+    ${user.teachSkills.map(skill => `
+        <span class="skill-badge">${skill}</span>
+    `).join("")}
+</div>
+                        
+
+
+                        <h3>Wants To Learn</h3>
+
+                        <div class="skill-badges">
+    ${user.learnSkills.map(skill => `
+        <span class="skill-badge">${skill}</span>
+    `).join("")}
+</div>
+
+                       <button 
+    id="connectBtn"
+    onclick="sendConnectionRequest()"
+>
+    Send Connection Request
+</button>
+                    </div>
+
+                `;
+
+            } catch (error) {
+
+                console.log(error);
+
+                container.innerHTML =
+                    "<p>Unable to load profile ❌</p>";
+            }
+
+        }
+
+
+        loadProfile();
+
+        async function sendConnectionRequest() {
+    const currentUser = JSON.parse(
+        localStorage.getItem("currentUser")
+    );
+
+    if (!currentUser) {
+        alert("Please login first.");
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            "http://localhost:5000/api/connections",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    sender: currentUser._id,
+                    receiver: userId
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+    alert(data.message);
+
+    const button = document.getElementById("connectBtn");
+    button.textContent = "Request Sent ✓";
+    button.disabled = true;
+}
+         else {
+            alert(data.message);
+        }
+
+    } catch (error) {
+        console.log(error);
+        alert("Connection request failed ❌");
+    }
+}
+    </script>
+
+</body>
+</html>

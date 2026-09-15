@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SkillSwap - Create Profile</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+</body>
+<nav class="signup-nav">
+    <div class="logo">🔵 SkillSwap</div>
+
+    <div class="signup-nav-links">
+        <a href="index.html">Discover</a>
+        <a href="login.html">Sign In</a>
+        <a href="signup.html" class="get-started">Get Started</a>
+    </div>
+</nav>
+
+<main class="signup-page">
+
+    <div class="signup-card">
+
+        <div class="signup-heading">
+            <h1>Create Account</h1>
+            <p>Fill in your details to get started with skill swapping</p>
+        </div>
+
+        <form id="signup-form">
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input
+                        type="text"
+                        placeholder="Enter your full name"
+                        id="name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input
+                        type="email"
+                        placeholder="Enter your email"
+                        id="email"
+                        required
+                    >
+                </div>
+
+                <div class="form-row">
+    <div class="form-group">
+        <label>Password *</label>
+        <input
+            type="password"
+            id="password"
+            placeholder="Create a password"
+            required
+        >
+    </div>
+
+    <div class="form-group">
+        <label>Confirm Password *</label>
+        <input
+            type="password"
+            id="confirmPassword"
+            placeholder="Confirm your password"
+            required
+        >
+    </div>
+</div>
+
+<div class="form-row">
+    <div class="form-group">
+        <label>Location</label>
+        <input
+            type="text"
+            id="location"
+            placeholder="e.g. Delhi, India"
+        >
+    </div>
+
+    <div class="form-group">
+        <label>Bio</label>
+        <input
+            type="text"
+            id="bio"
+            placeholder="Tell us a little about yourself"
+        >
+    </div>
+</div>
+
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label>Skills I Can Teach *</label>
+                    <input
+                        type="text"
+                        placeholder="e.g. JavaScript, HTML"
+                        id="teachSkills"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Skills I Want To Learn *</label>
+                    <input
+                        type="text"
+                        placeholder="e.g. Python, Java"
+                        id="learnSkills"
+                        required
+                    >
+                </div>
+
+            </div>
+
+            <button type="submit" class="create-account-btn">
+                Create Account
+            </button>
+
+            <p class="signin-text">
+                Already have an account?
+                <a href="login.html">Sign in</a>
+            </p>
+
+        </form>
+
+    </div>
+
+</main>
+
+<script src="script.js"></script>
+
+</body>
+</html>

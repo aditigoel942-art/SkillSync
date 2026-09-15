@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SkillSwap - Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">SkillSwap 🚀</div>
+
+        <div>
+            <a href="index.html">Home</a>
+            <a href="connections.html">Connections 🤝</a>
+            <a href="#" id="logout-btn">Logout 🚪</a>
+        </div>
+    </nav>
+
+    <main class="dashboard">
+
+        <div class="dashboard-header">
+
+            <div>
+                <h1>Welcome back! 👋</h1>
+                <p>Manage your skills and connections</p>
+            </div>
+
+            <div class="dashboard-buttons">
+                <a href="signup.html" class="button">
+                    ✏️ Edit Profile
+                </a>
+
+                <a href="index.html" class="button">
+                    ➕ Find Partners
+                </a>
+            </div>
+
+        </div>
+
+
+        <!-- Dashboard Stats -->
+
+<div class="dashboard-stats">
+
+    <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div>
+            <p>Total Connections</p>
+            <h2 id="total-connections">0</h2>
+            <span>Completed exchanges</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">☆</div>
+        <div>
+            <p>Rating</p>
+            <h2>5.0</h2>
+            <span>Average rating</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">▢</div>
+        <div>
+            <p>Pending Requests</p>
+            <h2 id="pending-requests">0</h2>
+            <span>In progress</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">🎓</div>
+        <div>
+            <p>Skills Offered</p>
+            <h2 id="skills-count">0</h2>
+            <span>Available skills</span>
+        </div>
+
+    </div>
+</div>
+
+<!-- Dashboard Content -->
+
+<div class="dashboard-grid">
+
+    <!-- Profile Summary -->
+
+    <div class="dashboard-card">
+
+        <h2>👤 Profile Summary</h2>
+
+        <p>Your current skill profile</p>
+
+        <div id="dashboard-user">
+            Loading profile...
+        </div>
+
+    </div>
+
+
+    <!-- Recent Activity -->
+
+    <div class="dashboard-card">
+
+        <h2>💬 Recent Activity</h2>
+
+        <p>Your latest SkillSwap activity</p>
+
+        <div id="recent-activity">
+            <p>No recent activity yet.</p>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Skills -->
+
+<div class="dashboard-grid">
+
+    <!-- Skills Offered -->
+
+    <div class="dashboard-card">
+
+        <h2>🎓 My Skills Offered</h2>
+
+        <div id="skills-offered">
+            Loading skills...
+        </div>
+
+    </div>
+
+
+    <!-- Skills Wanted -->
+
+    <div class="dashboard-card">
+
+        <h2>📚 Skills I Want To Learn</h2>
+
+        <div id="skills-wanted">
+            Loading skills...
+        </div>
+
+    </div>
+
+</div>
+
+</main>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>

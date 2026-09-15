@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Browse Skills - SkillSwap</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="browse-skills.html">Browse Skills</a>
+        <a href="dashboard.html">Dashboard</a>
+    </nav>
+
+
+    <!-- Browse Skills Section -->
+    <div class="browse-header">
+    <h1>Browse Skills</h1>
+
+    <p>
+        Discover people who can teach you a skill
+        and find people who want to learn your skills.
+    </p>
+</div>
+
+        <!-- Search -->
+        <div class="search-box">
+    <input 
+        type="text"
+        id="searchSkill"
+        placeholder="Search for skills (e.g., 'Photoshop', 'Excel', 'Guitar')"
+        oninput="searchSkills()"
+    >
+
+    <button onclick="searchSkills()">
+        🔍 Search
+    </button>
+</div>
+        <div class="skill-filters">
+
+    <button class="filter-btn" onclick="filterSkills('all')">All</button>
+<button class="filter-btn" onclick="filterSkills('Java')">Java</button>
+<button class="filter-btn" onclick="filterSkills('React')">React</button>
+<button class="filter-btn" onclick="filterSkills('Python')">Python</button>
+<button class="filter-btn" onclick="filterSkills('JavaScript')">JavaScript</button>
+
+</div>
+
+        <!-- Skills -->
+        <section id="skillsContainer">
+    <p>Loading skills...</p>
+</section>
+
+    </main>
+
+<script>
+   
+</script>
+
+    <script src="script.js"></script>
+<script>
+    async function loadSkills() {
+
+        const container = document.getElementById("skillsContainer");
+
+        try {
+
+            const response = await fetch(
+                "http://localhost:5000/api/users"
+            );
+
+            const users = await response.json();
+
+            container.innerHTML = "";
+
+            if (users.length === 0) {
+                container.innerHTML = "<p>No users found.</p>";
+                return;
+            }
+
+            users.forEach(user => {
+
+                const card = document.createElement("div");
+
+                card.classList.add("skill-card");
+
+                card.innerHTML = `
+                    <h2>${user.name}</h2>
+
+                    <p>
+                        <strong>Can Teach:</strong>
+                        ${user.teachSkills.join(", ")}
+                    </p>
+
+                    <p>
+                        <strong>Wants to Learn:</strong>
+                        ${user.learnSkills.join(", ")}
+                    </p>
+
+                    <button onclick="viewProfile('${user._id}')">
+    View Profile
+</button>
+                `;
+
+                container.appendChild(card);
+
+            });
+
+        } catch (error) {
+
+            console.log(error);
+
+            container.innerHTML =
+                "<p>Users load nahi ho pa rahe ❌</p>";
+        }
+    }
+
+    loadSkills();
+
+    function viewProfile(userId) {
+    window.location.href = "profile.html?id=" + userId;
+}
+
+function filterSkills(skill) {
+    const searchText = document
+        .getElementById("searchSkill")
+        .value
+        .toLowerCase();
+
+    const cards = document.querySelectorAll(".skill-card");
+    const buttons = document.querySelectorAll(".filter-btn");
+
+    buttons.forEach(button => {
+        button.classList.remove("active");
+    });
+
+    buttons.forEach(button => {
+        if (button.textContent.toLowerCase() === skill.toLowerCase()) {
+            button.classList.add("active");
+        }
+    });
+
+    cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+
+        const matchesFilter =
+            skill === "all" ||
+            text.includes(skill.toLowerCase());
+
+        const matchesSearch =
+            text.includes(searchText);
+
+        card.style.display =
+            matchesFilter && matchesSearch ? "" : "none";
+    });
+}
+
+function searchSkills() {
+    const searchText = document
+        .getElementById("searchSkill")
+        .value
+        .toLowerCase();
+
+    const cards = document.querySelectorAll(".skill-card");
+
+    cards.forEach(card => {
+        const cardText = card.textContent.toLowerCase();
+
+        if (cardText.includes(searchText)) {
+            card.style.display = "";
+        } else {
+            card.style.display = "none";
+        }
+    });
+}
+</script>
+</body>
+</html>
