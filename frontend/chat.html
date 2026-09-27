@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap | Real-Time Chat 💬</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body class="chat-body">
+
+    <!-- Navbar -->
+    <nav class="chat-nav">
+        <div class="logo" onclick="window.location.href='index.html'">SkillSwap 🚀</div>
+        <div>
+            <a href="index.html">Home</a>
+            <a href="dashboard.html">Dashboard 📊</a>
+            <a href="connections.html">Connections 🤝</a>
+            <a href="chat.html" class="active-nav">Chat 💬</a>
+            <a href="browse-skills.html">Browse Skills</a>
+            <a href="#" id="logout-btn">Logout 🚪</a>
+        </div>
+    </nav>
+
+    <!-- Socket Reconnecting / Error Alert Banner -->
+    <div id="connection-banner" class="connection-banner hidden">
+        <span id="banner-text">Connecting to real-time chat server...</span>
+    </div>
+
+    <!-- Main Chat Workspace -->
+    <div class="chat-layout">
+
+        <!-- Sidebar: Conversation List -->
+        <aside class="chat-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title-row">
+                    <h2>Messages 💬</h2>
+                    <span class="chat-badge" id="connections-count">0</span>
+                </div>
+                <input 
+                    type="text" 
+                    id="search-conversations" 
+                    placeholder="Search connected partners..." 
+                    oninput="filterConversations()"
+                >
+            </div>
+
+            <div id="conversations-list" class="conversations-list">
+                <div class="chat-loading-state">
+                    <p>Loading your connections...</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <section class="chat-main" id="chat-main-section">
+
+            <!-- Active Chat Header -->
+            <div class="chat-header" id="chat-header" style="display: none;">
+                <div class="chat-header-user">
+                    <div class="avatar-wrapper">
+                        <div class="user-avatar" id="active-avatar">?</div>
+                        <span class="status-indicator offline" id="active-status-dot"></span>
+                    </div>
+                    <div class="user-info">
+                        <div class="name-status-row">
+                            <h3 id="active-user-name">Select a Conversation</h3>
+                            <span class="online-text" id="active-online-status">Offline</span>
+                        </div>
+                        <p class="skills-subtext" id="active-user-skills">Skills Exchange Partner</p>
+                    </div>
+                </div>
+
+                <div class="chat-header-actions">
+                    <button id="start-session-btn" class="header-action-btn live-btn" title="Start Live Video Session">
+                        🎥 Start Live Session
+                    </button>
+                    <a href="connections.html" class="header-action-btn back-btn">
+                        🤝 Connections
+                    </a>
+                </div>
+            </div>
+
+            <!-- Messages Stream Area -->
+            <div class="messages-container" id="messages-container">
+                <div class="no-conversation-selected" id="empty-selection-placeholder">
+                    <div class="empty-icon">💬</div>
+                    <h3>Your SkillSwap Messages</h3>
+                    <p>Select an accepted connection from the sidebar to chat in real-time, or start a live skill session.</p>
+                </div>
+                <div id="messages-list" class="messages-list" style="display: none;"></div>
+            </div>
+
+            <!-- Typing indicator -->
+            <div id="typing-indicator" class="typing-indicator hidden">
+                <span id="typing-text">Partner is typing...</span>
+            </div>
+
+            <!-- Message Input Area -->
+            <form id="chat-form" class="chat-input-bar" style="display: none;">
+                <input 
+                    type="text" 
+                    id="message-input" 
+                    placeholder="Type a message... (Press Enter to send)" 
+                    autocomplete="off"
+                    required
+                >
+                <button type="submit" id="send-btn" class="send-message-btn">
+                    <span>Send</span> 🚀
+                </button>
+            </form>
+
+        </section>
+
+    </div>
+
+    <script src="chat.js"></script>
+</body>
+</html>

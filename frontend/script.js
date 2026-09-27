@@ -45,7 +45,14 @@ if (password !== confirmPassword) {
 
             if (response.ok) {
                 alert("Profile created successfully! 🎉");
+                if (data.token) {
+                    localStorage.setItem("token", data.token);
+                }
+                if (data.user) {
+                    localStorage.setItem("currentUser", JSON.stringify(data.user));
+                }
                 signupForm.reset();
+                window.location.href = "dashboard.html";
             } else {
                 alert(data.message);
             }
@@ -230,11 +237,14 @@ if (loginForm) {
             if (response.ok) {
                 message.textContent = "Login successful! 🎉";
 
-                // Current user ko browser mein save karna
+                // Current user aur token ko browser mein save karna
                 localStorage.setItem(
                     "currentUser",
                     JSON.stringify(data.user)
                 );
+                if (data.token) {
+                    localStorage.setItem("token", data.token);
+                }
                 window.location.href = "dashboard.html";                 //User login karega → login successful → automatically dashboard open ho jayega.
 
             } else {
@@ -383,11 +393,26 @@ async function loadAcceptedConnections(userId) {
                     ? connection.receiver
                     : connection.sender;
 
+            const teachBadges = otherUser.teachSkills && otherUser.teachSkills.length > 0
+                ? otherUser.teachSkills.map(s => `<span class="skill-badge">${s}</span>`).join(" ")
+                : "";
+
             container.innerHTML += `
                 <div class="connection-card">
-                    <h3>${otherUser.name}</h3>
-                    <p>${otherUser.email}</p>
-                    <p>Connected ✅</p>
+                    <div class="card-info">
+                        <h3>${otherUser.name}</h3>
+                        <p>${otherUser.email}</p>
+                        ${teachBadges ? `<div class="card-skills-row"><small style="color:#aaa;">Teaches: </small>${teachBadges}</div>` : ""}
+                        <p class="status-badge">Connected ✅</p>
+                    </div>
+                    <div class="connection-actions">
+                        <a href="chat.html?connectionId=${connection._id}" class="action-btn chat-btn">
+                            💬 Chat
+                        </a>
+                        <button class="action-btn live-btn" onclick="startLiveSession('${connection._id}', '${otherUser._id}')">
+                            🎥 Start Live Session
+                        </button>
+                    </div>
                 </div>
             `;
         });
@@ -401,6 +426,41 @@ async function loadAcceptedConnections(userId) {
     }
 }
 
+// Function to initiate a live WebRTC session
+async function startLiveSession(connectionId, participantId) {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("Please login first.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    try {
+        const response = await fetch("http://localhost:5000/api/live-sessions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                connectionId,
+                participantId
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.session) {
+            window.location.href = `live-session.html?sessionId=${data.session._id}`;
+        } else {
+            alert(data.message || "Failed to start live session");
+        }
+    } catch (err) {
+        console.error("Live session start error:", err);
+        alert("Unable to start live session. Please check if server is running.");
+    }
+}
+
 //Logout 🚪 click → current user remove → Login page open.
 const logoutButton = document.getElementById("logout-btn");
 
@@ -409,6 +469,7 @@ if (logoutButton) {
         event.preventDefault();
 
         localStorage.removeItem("currentUser");
+        localStorage.removeItem("token");
 
         window.location.href = "login.html";
     });

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap | Live Skill Session 🎥</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body class="session-body">
+
+    <!-- Top Bar -->
+    <header class="session-header">
+        <div class="session-header-left">
+            <div class="logo" onclick="window.location.href='dashboard.html'">SkillSwap 🚀</div>
+            <div class="live-pill">
+                <span class="live-dot"></span>
+                <span>LIVE SESSION</span>
+            </div>
+            <div class="session-timer-badge">
+                <span class="timer-icon">⏱️</span>
+                <span id="session-timer">00:00</span>
+            </div>
+        </div>
+
+        <div class="session-header-center">
+            <div class="session-topic-box" id="session-topic-box">
+                <span class="topic-label">Skill Exchange:</span>
+                <span class="topic-value" id="session-topic">Loading session info...</span>
+            </div>
+        </div>
+
+        <div class="session-header-right">
+            <div class="connection-status-pill" id="conn-status-pill">
+                <span class="status-indicator-dot connecting" id="status-dot"></span>
+                <span id="conn-status-text">Connecting...</span>
+            </div>
+            <button class="leave-btn-top" id="leave-session-btn-top" title="Exit Live Session">
+                Leave 🚪
+            </button>
+        </div>
+    </header>
+
+    <!-- Error/Notice Alert Banner -->
+    <div id="session-alert" class="session-alert hidden">
+        <span id="alert-text">Alert message</span>
+        <button class="alert-close-btn" onclick="document.getElementById('session-alert').classList.add('hidden')">✕</button>
+    </div>
+
+    <!-- Main Live Session Workspace -->
+    <main class="session-main">
+
+        <!-- Video Grid Container -->
+        <div class="video-grid-container" id="video-grid-container">
+
+            <!-- Remote Participant Video Card -->
+            <div class="video-card remote-card" id="remote-card">
+                <video id="remote-video" autoplay playsinline></video>
+
+                <!-- Placeholder when peer has not joined or camera is off -->
+                <div class="video-placeholder" id="remote-placeholder">
+                    <div class="avatar-circle" id="remote-avatar">?</div>
+                    <h3 id="remote-name">Skill Partner</h3>
+                    <p class="placeholder-status" id="remote-status-msg">Waiting for partner to connect...</p>
+                    <div class="loading-spinner" id="remote-spinner"></div>
+                </div>
+
+                <!-- Video Card Overlay -->
+                <div class="video-overlay">
+                    <div class="participant-badge">
+                        <span id="remote-label-name">Partner</span>
+                        <span class="media-status-icons">
+                            <span class="media-icon" id="remote-mic-status" title="Mic Active">🎤</span>
+                            <span class="media-icon" id="remote-cam-status" title="Camera Active">📷</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Local Participant Video Card -->
+            <div class="video-card local-card" id="local-card">
+                <video id="local-video" autoplay playsinline muted></video>
+
+                <!-- Local placeholder when camera is toggled off -->
+                <div class="video-placeholder hidden" id="local-placeholder">
+                    <div class="avatar-circle" id="local-avatar">You</div>
+                    <h3 id="local-name">You</h3>
+                    <p class="placeholder-status">Camera is off</p>
+                </div>
+
+                <!-- Local Video Card Overlay -->
+                <div class="video-overlay">
+                    <div class="participant-badge local-badge">
+                        <span id="local-label-name">You</span>
+                        <span class="media-status-icons">
+                            <span class="media-icon" id="local-mic-status" title="Mic Active">🎤</span>
+                            <span class="media-icon" id="local-cam-status" title="Camera Active">📷</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Optional Floating Side Drawer for in-call messaging -->
+        <aside class="in-call-chat-drawer hidden" id="in-call-chat-drawer">
+            <div class="drawer-header">
+                <h3>Session Notes & Chat</h3>
+                <button class="drawer-close-btn" id="close-drawer-btn">✕</button>
+            </div>
+            <div class="drawer-messages" id="drawer-messages">
+                <p class="drawer-hint">💬 Message your partner in real-time during this call.</p>
+            </div>
+            <form class="drawer-input-form" id="drawer-input-form">
+                <input type="text" id="drawer-msg-input" placeholder="Type a message or share a link..." autocomplete="off">
+                <button type="submit" class="drawer-send-btn">🚀</button>
+            </form>
+        </aside>
+
+    </main>
+
+    <!-- Floating Media Controls Dock -->
+    <footer class="session-controls-dock">
+        <div class="dock-wrapper">
+
+            <!-- Toggle Microphone -->
+            <button class="control-btn active" id="btn-toggle-mic" title="Mute/Unmute Microphone">
+                <span class="btn-icon">🎤</span>
+                <span class="btn-label" id="label-mic">Mute</span>
+            </button>
+
+            <!-- Toggle Camera -->
+            <button class="control-btn active" id="btn-toggle-cam" title="Turn Camera On/Off">
+                <span class="btn-icon">📷</span>
+                <span class="btn-label" id="label-cam">Stop Video</span>
+            </button>
+
+            <!-- Toggle Screen Share -->
+            <button class="control-btn" id="btn-toggle-screen" title="Share Screen">
+                <span class="btn-icon">🖥️</span>
+                <span class="btn-label" id="label-screen">Share Screen</span>
+            </button>
+
+            <!-- Toggle In-Call Chat Drawer -->
+            <button class="control-btn" id="btn-toggle-chat" title="Session Chat">
+                <span class="btn-icon">💬</span>
+                <span class="btn-label">Chat</span>
+            </button>
+
+            <!-- End / Leave Session Button -->
+            <button class="control-btn end-call" id="btn-end-call" title="End Live Session">
+                <span class="btn-icon">📞</span>
+                <span class="btn-label">End Session</span>
+            </button>
+
+        </div>
+    </footer>
+
+    <!-- Permission Denied Guidance Modal -->
+    <div class="modal-backdrop hidden" id="permission-modal">
+        <div class="modal-card">
+            <div class="modal-icon">🔒</div>
+            <h2>Camera & Microphone Required</h2>
+            <p>SkillSwap needs permission to access your camera and microphone so you can teach and learn live.</p>
+            <div class="modal-instructions">
+                <p>1. Look at your browser address bar.</p>
+                <p>2. Click the lock / camera icon on the left.</p>
+                <p>3. Set Camera and Microphone to <strong>"Allow"</strong>.</p>
+                <p>4. Click <strong>"Retry Permissions"</strong> below.</p>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn primary-btn" id="retry-permission-btn">Retry Permissions 🔄</button>
+                <button class="modal-btn secondary-btn" onclick="window.location.href='connections.html'">Cancel & Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Ended Summary Modal -->
+    <div class="modal-backdrop hidden" id="session-ended-modal">
+        <div class="modal-card">
+            <div class="modal-icon">🎉</div>
+            <h2>Live Session Ended</h2>
+            <p id="session-summary-text">Your live skill exchange session has concluded.</p>
+            <div class="session-stats-box">
+                <div class="stat-item">
+                    <span class="stat-title">Duration:</span>
+                    <strong id="final-duration">00:00</strong>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn primary-btn" onclick="window.location.href='connections.html'">Back to Connections 🤝</button>
+                <button class="modal-btn secondary-btn" onclick="window.location.href='dashboard.html'">Go to Dashboard 📊</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="live-session.js"></script>
+</body>
+</html>
