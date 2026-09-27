@@ -1,9 +1,10 @@
 const express = require("express");                              
 const mongoose = require("mongoose");
 const http = require("http");
+const path = require("path");
 const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const cors = require("cors");                             //cors ko import/load kar rahe hain, taaki frontend aur backend ke beech request allow ho sake
 const User = require("./userModel"); 
@@ -18,6 +19,9 @@ app.use(cors());
 
 // JSON data receive karne ke liye
 app.use(express.json());
+
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, "../frontend")));
 
 // Create HTTP server and initialize Socket.IO
 const server = http.createServer(app);

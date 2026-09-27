@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             e.preventDefault();
             localStorage.removeItem("currentUser");
             localStorage.removeItem("token");
-            window.location.href = "login.html";
+            window.location.href = "index.html";
         });
     }
 
@@ -150,9 +150,9 @@ async function loadConnections() {
 
         if (acceptedConnections.length === 0) {
             listContainer.innerHTML = `
-                <div class="chat-empty-state">
-                    <p>No accepted connections yet.</p>
-                    <a href="browse-skills.html" class="browse-link">Find Skill Partners 🚀</a>
+                <div class="empty-state" style="padding:24px 16px; border:none;">
+                    <p class="text-sm text-muted">No accepted connections yet.</p>
+                    <a href="browse-skills.html" class="btn btn-primary btn-sm" style="margin-top:10px;">Find Skill Partners</a>
                 </div>
             `;
             return;
@@ -183,7 +183,7 @@ async function loadConnections() {
 
     } catch (err) {
         console.error("Error loading connections:", err);
-        listContainer.innerHTML = `<div class="chat-error-state"><p>Could not load connections ❌</p></div>`;
+        listContainer.innerHTML = `<div class="empty-state" style="padding:20px; border:none;"><p class="text-sm text-muted">Could not load connections</p></div>`;
     }
 }
 
@@ -468,8 +468,8 @@ function updateUserOnlineStatusUI(userId, isOnline) {
         const headerText = document.getElementById("active-online-status");
         if (headerDot) headerDot.className = `status-indicator ${isOnline ? 'online' : 'offline'}`;
         if (headerText) {
-            headerText.textContent = isOnline ? "Online 🟢" : "Offline ⚪";
-            headerText.style.color = isOnline ? "#22c55e" : "#888";
+            headerText.textContent = isOnline ? "Online" : "Offline";
+            headerText.style.color = isOnline ? "var(--success)" : "var(--text-muted)";
         }
     }
 }

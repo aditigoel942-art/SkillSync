@@ -3,27 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkillSwap | Real-Time Chat 💬</title>
+    <title>Messages & Chat - SkillSwap</title>
+    <meta name="description" content="Chat in real-time with your skill partners, coordinate swap agendas, or launch live video sessions.">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </head>
 <body class="chat-body">
 
-    <!-- Navbar -->
-    <nav class="chat-nav">
-        <div class="logo" onclick="window.location.href='index.html'">SkillSwap 🚀</div>
-        <div>
-            <a href="index.html">Home</a>
-            <a href="dashboard.html">Dashboard 📊</a>
-            <a href="connections.html">Connections 🤝</a>
-            <a href="chat.html" class="active-nav">Chat 💬</a>
-            <a href="browse-skills.html">Browse Skills</a>
-            <a href="#" id="logout-btn">Logout 🚪</a>
-        </div>
-    </nav>
+    <!-- Sticky Navigation -->
+    <nav class="navbar" id="main-nav"></nav>
 
     <!-- Socket Reconnecting / Error Alert Banner -->
-    <div id="connection-banner" class="connection-banner hidden">
+    <div id="connection-banner" class="connection-banner hidden" style="background:#fffbeb; color:#92400e; padding:8px 16px; font-size:0.85rem; border-bottom:1px solid #fde68a; display:none; align-items:center; justify-content:center; gap:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
         <span id="banner-text">Connecting to real-time chat server...</span>
     </div>
 
@@ -31,23 +23,27 @@
     <div class="chat-layout">
 
         <!-- Sidebar: Conversation List -->
-        <aside class="chat-sidebar">
+        <aside class="chat-sidebar" id="chat-sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-title-row">
-                    <h2>Messages 💬</h2>
+                    <h2>Messages</h2>
                     <span class="chat-badge" id="connections-count">0</span>
                 </div>
-                <input 
-                    type="text" 
-                    id="search-conversations" 
-                    placeholder="Search connected partners..." 
-                    oninput="filterConversations()"
-                >
+                <div class="search-box" style="padding: 2px 4px 2px 10px; box-shadow:none;">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="margin-right:6px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input 
+                        type="text" 
+                        id="search-conversations" 
+                        placeholder="Search partners..." 
+                        oninput="filterConversations()"
+                        autocomplete="off"
+                    >
+                </div>
             </div>
 
             <div id="conversations-list" class="conversations-list">
-                <div class="chat-loading-state">
-                    <p>Loading your connections...</p>
+                <div style="padding: 20px; text-align: center; color: var(--text-muted);">
+                    <p class="text-sm">Loading conversations...</p>
                 </div>
             </div>
         </aside>
@@ -56,8 +52,11 @@
         <section class="chat-main" id="chat-main-section">
 
             <!-- Active Chat Header -->
-            <div class="chat-header" id="chat-header" style="display: none;">
+            <header class="chat-header" id="chat-header" style="display: none;">
                 <div class="chat-header-user">
+                    <button class="btn btn-secondary btn-sm" id="mobile-back-to-list" style="display:none; padding:6px 10px; margin-right:4px;" onclick="toggleMobileChat(false)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
                     <div class="avatar-wrapper">
                         <div class="user-avatar" id="active-avatar">?</div>
                         <span class="status-indicator offline" id="active-status-dot"></span>
@@ -72,21 +71,24 @@
                 </div>
 
                 <div class="chat-header-actions">
-                    <button id="start-session-btn" class="header-action-btn live-btn" title="Start Live Video Session">
-                        🎥 Start Live Session
+                    <button id="start-session-btn" class="btn btn-primary btn-sm live-btn" title="Start Live Video Session">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                        Start Session
                     </button>
-                    <a href="connections.html" class="header-action-btn back-btn">
-                        🤝 Connections
+                    <a href="connections.html" class="btn btn-secondary btn-sm">
+                        Connections
                     </a>
                 </div>
-            </div>
+            </header>
 
             <!-- Messages Stream Area -->
             <div class="messages-container" id="messages-container">
                 <div class="no-conversation-selected" id="empty-selection-placeholder">
-                    <div class="empty-icon">💬</div>
+                    <div class="empty-icon" style="width:52px; height:52px; border-radius:50%; background:var(--primary-light); color:var(--primary); display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="26" height="26"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    </div>
                     <h3>Your SkillSwap Messages</h3>
-                    <p>Select an accepted connection from the sidebar to chat in real-time, or start a live skill session.</p>
+                    <p>Select an accepted connection from the sidebar to chat in real-time or coordinate your next live session.</p>
                 </div>
                 <div id="messages-list" class="messages-list" style="display: none;"></div>
             </div>
@@ -96,7 +98,7 @@
                 <span id="typing-text">Partner is typing...</span>
             </div>
 
-            <!-- Message Input Area -->
+            <!-- Message Input Composer -->
             <form id="chat-form" class="chat-input-bar" style="display: none;">
                 <input 
                     type="text" 
@@ -106,7 +108,8 @@
                     required
                 >
                 <button type="submit" id="send-btn" class="send-message-btn">
-                    <span>Send</span> 🚀
+                    <span>Send</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                 </button>
             </form>
 
@@ -114,6 +117,42 @@
 
     </div>
 
+    <!-- Global Application Engine & Chat Logic -->
+    <script src="script.js"></script>
     <script src="chat.js"></script>
+
+    <script>
+        // Responsive Mobile Navigation Helper
+        function toggleMobileChat(isDetailView) {
+            const sidebar = document.getElementById("chat-sidebar");
+            const main = document.getElementById("chat-main-section");
+            const backBtn = document.getElementById("mobile-back-to-list");
+
+            if (window.innerWidth <= 868) {
+                if (isDetailView) {
+                    if (sidebar) sidebar.classList.add("mobile-hidden");
+                    if (main) main.classList.remove("mobile-hidden");
+                    if (backBtn) backBtn.style.display = "inline-flex";
+                } else {
+                    if (sidebar) sidebar.classList.remove("mobile-hidden");
+                    if (main) main.classList.add("mobile-hidden");
+                    if (backBtn) backBtn.style.display = "none";
+                }
+            }
+        }
+
+        // Hook into conversation selection
+        const originalSelect = window.selectConversation;
+        window.addEventListener("DOMContentLoaded", () => {
+            const list = document.getElementById("conversations-list");
+            if (list) {
+                list.addEventListener("click", () => {
+                    if (window.innerWidth <= 868) {
+                        toggleMobileChat(true);
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

@@ -3,184 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Browse Skills - SkillSwap</title>
-
+    <title>Discover Skills & Mentors - SkillSwap</title>
+    <meta name="description" content="Discover talented peers to learn from. Connect with members who teach what you want to learn and are eager to learn your skills.">
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-    <!-- Navbar -->
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="connections.html">Connections 🤝</a>
-        <a href="chat.html">Chat 💬</a>
-        <a href="browse-skills.html">Browse Skills</a>
-        <a href="dashboard.html">Dashboard</a>
-    </nav>
+    <!-- Sticky Navigation -->
+    <nav class="navbar" id="main-nav"></nav>
 
+    <!-- Browse Marketplace Workspace -->
+    <main class="browse-page">
 
-    <!-- Browse Skills Section -->
-    <div class="browse-header">
-    <h1>Browse Skills</h1>
+        <!-- Header -->
+        <header class="browse-header">
+            <h1>Discover people to learn from</h1>
+            <p>Find someone who knows what you want to learn and wants to learn what you already know.</p>
+        </header>
 
-    <p>
-        Discover people who can teach you a skill
-        and find people who want to learn your skills.
-    </p>
-</div>
+        <!-- Search & Filter Controls -->
+        <div class="browse-controls">
+            <!-- Search Bar -->
+            <div class="search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input 
+                    type="text"
+                    id="searchSkill"
+                    placeholder="Search by skill name, user name, or topic (e.g. React, Python, Design)..."
+                    oninput="searchSkills()"
+                    autocomplete="off"
+                >
+                <button type="button" onclick="searchSkills()">
+                    Search
+                </button>
+            </div>
 
-        <!-- Search -->
-        <div class="search-box">
-    <input 
-        type="text"
-        id="searchSkill"
-        placeholder="Search for skills (e.g., 'Photoshop', 'Excel', 'Guitar')"
-        oninput="searchSkills()"
-    >
+            <!-- Category / Skill Filter Chips -->
+            <div class="skill-filters">
+                <button class="filter-btn active" onclick="filterSkills('all')">All Skills</button>
+                <button class="filter-btn" onclick="filterSkills('React')">React</button>
+                <button class="filter-btn" onclick="filterSkills('JavaScript')">JavaScript</button>
+                <button class="filter-btn" onclick="filterSkills('Python')">Python</button>
+                <button class="filter-btn" onclick="filterSkills('Java')">Java</button>
+                <button class="filter-btn" onclick="filterSkills('Design')">Design</button>
+                <button class="filter-btn" onclick="filterSkills('Excel')">Excel</button>
+            </div>
+        </div>
 
-    <button onclick="searchSkills()">
-        🔍 Search
-    </button>
-</div>
-        <div class="skill-filters">
+        <!-- Skills Container with Skeleton Fallback -->
+        <section id="skillsContainer" class="skills-grid">
+            <!-- Skeleton cards shown during initial fetch -->
+            <div class="skeleton-card">
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <div class="skeleton" style="width:44px; height:44px; border-radius:50%;"></div>
+                    <div style="flex:1;">
+                        <div class="skeleton skeleton-text" style="width:60%; margin-bottom:6px;"></div>
+                        <div class="skeleton skeleton-text" style="width:40%;"></div>
+                    </div>
+                </div>
+                <div class="skeleton skeleton-text" style="width:90%; margin-top:12px;"></div>
+                <div class="skeleton skeleton-text" style="width:75%;"></div>
+                <div style="display:flex; gap:8px; margin-top:14px;">
+                    <div class="skeleton" style="height:36px; flex:1; border-radius:8px;"></div>
+                    <div class="skeleton" style="height:36px; flex:1; border-radius:8px;"></div>
+                </div>
+            </div>
 
-    <button class="filter-btn" onclick="filterSkills('all')">All</button>
-<button class="filter-btn" onclick="filterSkills('Java')">Java</button>
-<button class="filter-btn" onclick="filterSkills('React')">React</button>
-<button class="filter-btn" onclick="filterSkills('Python')">Python</button>
-<button class="filter-btn" onclick="filterSkills('JavaScript')">JavaScript</button>
+            <div class="skeleton-card">
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <div class="skeleton" style="width:44px; height:44px; border-radius:50%;"></div>
+                    <div style="flex:1;">
+                        <div class="skeleton skeleton-text" style="width:60%; margin-bottom:6px;"></div>
+                        <div class="skeleton skeleton-text" style="width:40%;"></div>
+                    </div>
+                </div>
+                <div class="skeleton skeleton-text" style="width:90%; margin-top:12px;"></div>
+                <div class="skeleton skeleton-text" style="width:75%;"></div>
+                <div style="display:flex; gap:8px; margin-top:14px;">
+                    <div class="skeleton" style="height:36px; flex:1; border-radius:8px;"></div>
+                    <div class="skeleton" style="height:36px; flex:1; border-radius:8px;"></div>
+                </div>
+            </div>
 
-</div>
-
-        <!-- Skills -->
-        <section id="skillsContainer">
-    <p>Loading skills...</p>
-</section>
+            <div class="skeleton-card">
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <div class="skeleton" style="width:44px; height:44px; border-radius:50%;"></div>
+                    <div style="flex:1;">
+                        <div class="skeleton skeleton-text" style="width:60%; margin-bottom:6px;"></div>
+                        <div class="skeleton skeleton-text" style="width:40%;"></div>
+                    </div>
+                </div>
+                <div class="skeleton skeleton-text" style="width:90%; margin-top:12px;"></div>
+                <div class="skeleton skeleton-text" style="width:75%;"></div>
+                <div style="display:flex; gap:8px; margin-top:14px;">
+                    <div class="skeleton" style="height:36px; flex:1; border-radius:8px;"></div>
+                    <div class="skeleton" style="height:36px; flex:1; border-radius:8px;"></div>
+                </div>
+            </div>
+        </section>
 
     </main>
 
-<script>
-   
-</script>
-
+    <!-- Global Scripts -->
     <script src="script.js"></script>
-<script>
-    async function loadSkills() {
 
-        const container = document.getElementById("skillsContainer");
+    <script>
+        let allUsersData = [];
 
-        try {
+        async function loadSkills() {
+            const container = document.getElementById("skillsContainer");
+            const currentUser = getCurrentUser();
 
-            const response = await fetch(
-                "http://localhost:5000/api/users"
-            );
+            try {
+                const response = await fetch("http://localhost:5000/api/users");
 
-            const users = await response.json();
+                if (!response.ok) {
+                    throw new Error("Failed to fetch users");
+                }
 
+                allUsersData = await response.json();
+                renderSkillCards(allUsersData);
+
+            } catch (error) {
+                console.error("Load skills error:", error);
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-state-icon" style="color:var(--danger); background:var(--danger-light);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        </div>
+                        <h3>Unable to load community members</h3>
+                        <p>Please make sure the SkillSwap backend server is running on port 5000.</p>
+                        <button class="btn btn-secondary btn-sm" onclick="loadSkills()">Retry Connection</button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderSkillCards(users) {
+            const container = document.getElementById("skillsContainer");
+            const currentUser = getCurrentUser();
             container.innerHTML = "";
 
-            if (users.length === 0) {
-                container.innerHTML = "<p>No users found.</p>";
+            if (!users || users.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-state-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </div>
+                        <h3>No members found</h3>
+                        <p>Try clearing your search query or choosing another filter category.</p>
+                        <button class="btn btn-secondary btn-sm" onclick="resetFilters()">Reset Search</button>
+                    </div>
+                `;
                 return;
             }
 
             users.forEach(user => {
+                const initials = getUserInitials(user.name);
+                const isSelf = currentUser && (currentUser._id === user._id);
+
+                const teachBadges = (user.teachSkills && user.teachSkills.length > 0)
+                    ? user.teachSkills.map(s => `<span class="badge badge-teach">${escapeHtml(s)}</span>`).join(" ")
+                    : "<span class='text-muted text-sm'>No skills listed</span>";
+
+                const learnBadges = (user.learnSkills && user.learnSkills.length > 0)
+                    ? user.learnSkills.map(s => `<span class="badge badge-learn">${escapeHtml(s)}</span>`).join(" ")
+                    : "<span class='text-muted text-sm'>Open to anything</span>";
 
                 const card = document.createElement("div");
-
-                card.classList.add("skill-card");
+                card.className = "skill-card";
+                card.dataset.name = (user.name || "").toLowerCase();
+                card.dataset.skills = [
+                    ...(user.teachSkills || []),
+                    ...(user.learnSkills || [])
+                ].join(" ").toLowerCase();
 
                 card.innerHTML = `
-                    <h2>${user.name}</h2>
+                    <div>
+                        <div class="skill-card-header">
+                            <div class="skill-card-avatar">${initials}</div>
+                            <div class="skill-card-info">
+                                <h2>${escapeHtml(user.name)}</h2>
+                                <div class="skill-card-location">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                    <span>${escapeHtml(user.location || "Active Member")}</span>
+                                </div>
+                            </div>
+                        </div>
 
-                    <p>
-                        <strong>Can Teach:</strong>
-                        ${user.teachSkills.join(", ")}
-                    </p>
+                        ${user.bio ? `<p class="text-sm text-muted" style="margin-bottom:14px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${escapeHtml(user.bio)}</p>` : ""}
 
-                    <p>
-                        <strong>Wants to Learn:</strong>
-                        ${user.learnSkills.join(", ")}
-                    </p>
+                        <div class="skill-section-block">
+                            <span class="skill-section-label">Can Teach</span>
+                            <div class="skill-tags-group">${teachBadges}</div>
+                        </div>
 
-                    <button onclick="viewProfile('${user._id}')">
-    View Profile
-</button>
+                        <div class="skill-section-block">
+                            <span class="skill-section-label">Wants To Learn</span>
+                            <div class="skill-tags-group">${learnBadges}</div>
+                        </div>
+                    </div>
+
+                    <div class="skill-card-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="viewProfile('${user._id}')">
+                            View Profile
+                        </button>
+                        ${isSelf
+                            ? `<span class="badge badge-neutral" style="padding:7px 12px; justify-content:center;">You</span>`
+                            : `<button class="btn btn-primary btn-sm connect-btn" onclick="sendDirectConnectionRequest('${user._id}', this)">
+                                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                                  Connect
+                               </button>`
+                        }
+                    </div>
                 `;
 
                 container.appendChild(card);
+            });
+        }
 
+        function viewProfile(userId) {
+            window.location.href = "profile.html?id=" + userId;
+        }
+
+        function resetFilters() {
+            document.getElementById("searchSkill").value = "";
+            filterSkills('all');
+        }
+
+        let currentActiveFilter = 'all';
+
+        function filterSkills(skill) {
+            currentActiveFilter = skill;
+            const buttons = document.querySelectorAll(".filter-btn");
+
+            buttons.forEach(btn => {
+                btn.classList.remove("active");
+                if (btn.textContent.trim().toLowerCase() === skill.toLowerCase() || (skill === 'all' && btn.textContent.includes('All'))) {
+                    btn.classList.add("active");
+                }
             });
 
-        } catch (error) {
-
-            console.log(error);
-
-            container.innerHTML =
-                "<p>Users load nahi ho pa rahe ❌</p>";
+            applySearchAndFilter();
         }
-    }
 
-    loadSkills();
-
-    function viewProfile(userId) {
-    window.location.href = "profile.html?id=" + userId;
-}
-
-function filterSkills(skill) {
-    const searchText = document
-        .getElementById("searchSkill")
-        .value
-        .toLowerCase();
-
-    const cards = document.querySelectorAll(".skill-card");
-    const buttons = document.querySelectorAll(".filter-btn");
-
-    buttons.forEach(button => {
-        button.classList.remove("active");
-    });
-
-    buttons.forEach(button => {
-        if (button.textContent.toLowerCase() === skill.toLowerCase()) {
-            button.classList.add("active");
+        function searchSkills() {
+            applySearchAndFilter();
         }
-    });
 
-    cards.forEach(card => {
-        const text = card.textContent.toLowerCase();
+        function applySearchAndFilter() {
+            const searchText = (document.getElementById("searchSkill").value || "").toLowerCase().trim();
+            const cards = document.querySelectorAll(".skill-card");
+            let visibleCount = 0;
 
-        const matchesFilter =
-            skill === "all" ||
-            text.includes(skill.toLowerCase());
+            cards.forEach(card => {
+                const name = card.dataset.name || "";
+                const skills = card.dataset.skills || "";
+                const allText = name + " " + skills;
 
-        const matchesSearch =
-            text.includes(searchText);
+                const matchesFilter = (currentActiveFilter === 'all') || skills.includes(currentActiveFilter.toLowerCase());
+                const matchesSearch = !searchText || allText.includes(searchText);
 
-        card.style.display =
-            matchesFilter && matchesSearch ? "" : "none";
-    });
-}
+                if (matchesFilter && matchesSearch) {
+                    card.style.display = "";
+                    visibleCount++;
+                } else {
+                    card.style.display = "none";
+                }
+            });
 
-function searchSkills() {
-    const searchText = document
-        .getElementById("searchSkill")
-        .value
-        .toLowerCase();
-
-    const cards = document.querySelectorAll(".skill-card");
-
-    cards.forEach(card => {
-        const cardText = card.textContent.toLowerCase();
-
-        if (cardText.includes(searchText)) {
-            card.style.display = "";
-        } else {
-            card.style.display = "none";
+            let noMatchEl = document.getElementById("no-filter-matches");
+            if (visibleCount === 0) {
+                if (!noMatchEl) {
+                    noMatchEl = document.createElement("div");
+                    noMatchEl.id = "no-filter-matches";
+                    noMatchEl.className = "empty-state";
+                    noMatchEl.style.gridColumn = "1 / -1";
+                    noMatchEl.innerHTML = `
+                        <div class="empty-state-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </div>
+                        <h3>No matching results</h3>
+                        <p>No community members match your current filter or query.</p>
+                        <button class="btn btn-secondary btn-sm" onclick="resetFilters()">Reset Search</button>
+                    `;
+                    document.getElementById("skillsContainer").appendChild(noMatchEl);
+                }
+                noMatchEl.style.display = "";
+            } else if (noMatchEl) {
+                noMatchEl.style.display = "none";
+            }
         }
-    });
-}
-</script>
+
+        // Initialize immediately
+        loadSkills();
+    </script>
 </body>
 </html>

@@ -1,145 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>SkillSwap - Create Profile</title>
-
+    <title>Create Profile & Join SkillSwap</title>
+    <meta name="description" content="Join SkillSwap to exchange skills, discover mentorship, and learn collaboratively with passionate peers.">
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-</body>
-<nav class="signup-nav">
-    <div class="logo">🔵 SkillSwap</div>
+    <!-- Sticky Navigation -->
+    <nav class="navbar" id="main-nav"></nav>
 
-    <div class="signup-nav-links">
-        <a href="index.html">Discover</a>
-        <a href="login.html">Sign In</a>
-        <a href="signup.html" class="get-started">Get Started</a>
-    </div>
-</nav>
+    <!-- Main Onboarding Workspace -->
+    <main class="signup-page">
+        <div class="signup-card">
 
-<main class="signup-page">
+            <!-- Card Header -->
+            <div class="signup-heading">
+                <h1>Create your account</h1>
+                <p>Join the peer-to-peer exchange community in two simple steps.</p>
+            </div>
 
-    <div class="signup-card">
+            <!-- 2-Step Progress Indicator -->
+            <div class="onboarding-steps" id="onboarding-steps-indicator">
+                <div class="onboarding-step-item" id="step-nav-1">
+                    <div class="step-circle active" id="step-badge-1">1</div>
+                    <span class="step-label active" id="step-label-1">Account</span>
+                </div>
+                <div style="flex:1; height:2px; background:var(--border-subtle); margin:0 8px;" id="step-connector"></div>
+                <div class="onboarding-step-item" id="step-nav-2">
+                    <div class="step-circle" id="step-badge-2">2</div>
+                    <span class="step-label" id="step-label-2">Skill Profile</span>
+                </div>
+            </div>
 
-        <div class="signup-heading">
-            <h1>Create Account</h1>
-            <p>Fill in your details to get started with skill swapping</p>
+            <!-- Single Unified Form -->
+            <form id="signup-form">
+
+                <!-- STEP 1: Account Credentials -->
+                <div id="signup-step-1">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Full Name *</label>
+                            <input
+                                type="text"
+                                id="name"
+                                placeholder="e.g. Alex Morgan"
+                                autocomplete="name"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input
+                                type="email"
+                                id="email"
+                                placeholder="alex@example.com"
+                                autocomplete="email"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password">Password *</label>
+                            <input
+                                type="password"
+                                id="password"
+                                placeholder="Create a strong password"
+                                autocomplete="new-password"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password *</label>
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                placeholder="Confirm your password"
+                                autocomplete="new-password"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" id="btn-next-step" style="width:100%; height:46px; margin-top:8px;">
+                        <span>Continue to Profile</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                </div>
+
+                <!-- STEP 2: Skill Profile Details -->
+                <div id="signup-step-2" style="display:none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="teachSkills">Skills I Can Teach *</label>
+                            <input
+                                type="text"
+                                id="teachSkills"
+                                placeholder="e.g. React, JavaScript, UI Design"
+                                required
+                            >
+                            <span class="text-xs text-muted" style="margin-top:2px;">Separate multiple skills with commas</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="learnSkills">Skills I Want To Learn *</label>
+                            <input
+                                type="text"
+                                id="learnSkills"
+                                placeholder="e.g. Python, Machine Learning"
+                                required
+                            >
+                            <span class="text-xs text-muted" style="margin-top:2px;">Separate multiple skills with commas</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input
+                                type="text"
+                                id="location"
+                                placeholder="e.g. San Francisco, CA or Remote"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bio">Bio</label>
+                            <input
+                                type="text"
+                                id="bio"
+                                placeholder="Briefly describe what you do or want to learn"
+                            >
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:12px; margin-top:10px;">
+                        <button type="button" class="btn btn-secondary" id="btn-prev-step" style="flex:1; height:46px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                            <span>Back</span>
+                        </button>
+
+                        <button type="submit" class="create-account-btn btn btn-primary" style="flex:2; height:46px; margin:0;">
+                            Create Account
+                        </button>
+                    </div>
+                </div>
+
+                <p class="signin-text" style="margin-top:20px;">
+                    Already have an account?
+                    <a href="login.html">Sign in</a>
+                </p>
+            </form>
+
         </div>
+    </main>
 
-        <form id="signup-form">
+    <!-- Global Application Engine -->
+    <script src="script.js"></script>
 
-            <div class="form-row">
+    <script>
+        // Interactive 2-Step Onboarding Controller
+        const step1 = document.getElementById("signup-step-1");
+        const step2 = document.getElementById("signup-step-2");
+        const btnNext = document.getElementById("btn-next-step");
+        const btnPrev = document.getElementById("btn-prev-step");
+        const badge1 = document.getElementById("step-badge-1");
+        const badge2 = document.getElementById("step-badge-2");
+        const label1 = document.getElementById("step-label-1");
+        const label2 = document.getElementById("step-label-2");
+        const connector = document.getElementById("step-connector");
 
-                <div class="form-group">
-                    <label>Full Name *</label>
-                    <input
-                        type="text"
-                        placeholder="Enter your full name"
-                        id="name"
-                        required
-                    >
-                </div>
+        function goToStep(stepNum) {
+            if (stepNum === 2) {
+                step1.style.display = "none";
+                step2.style.display = "block";
 
-                <div class="form-group">
-                    <label>Email *</label>
-                    <input
-                        type="email"
-                        placeholder="Enter your email"
-                        id="email"
-                        required
-                    >
-                </div>
+                badge1.classList.remove("active");
+                badge1.style.background = "var(--success)";
+                badge1.style.borderColor = "var(--success)";
+                badge1.innerHTML = "✓";
 
-                <div class="form-row">
-    <div class="form-group">
-        <label>Password *</label>
-        <input
-            type="password"
-            id="password"
-            placeholder="Create a password"
-            required
-        >
-    </div>
+                badge2.classList.add("active");
+                label2.classList.add("active");
+                connector.style.background = "var(--primary)";
+            } else {
+                step2.style.display = "none";
+                step1.style.display = "block";
 
-    <div class="form-group">
-        <label>Confirm Password *</label>
-        <input
-            type="password"
-            id="confirmPassword"
-            placeholder="Confirm your password"
-            required
-        >
-    </div>
-</div>
+                badge1.classList.add("active");
+                badge1.style.background = "var(--primary)";
+                badge1.style.borderColor = "var(--primary)";
+                badge1.innerHTML = "1";
 
-<div class="form-row">
-    <div class="form-group">
-        <label>Location</label>
-        <input
-            type="text"
-            id="location"
-            placeholder="e.g. Delhi, India"
-        >
-    </div>
+                badge2.classList.remove("active");
+                label2.classList.remove("active");
+                connector.style.background = "var(--border-subtle)";
+            }
+        }
 
-    <div class="form-group">
-        <label>Bio</label>
-        <input
-            type="text"
-            id="bio"
-            placeholder="Tell us a little about yourself"
-        >
-    </div>
-</div>
+        if (btnNext) {
+            btnNext.addEventListener("click", () => {
+                const name = document.getElementById("name").value.trim();
+                const email = document.getElementById("email").value.trim();
+                const password = document.getElementById("password").value;
+                const confirmPassword = document.getElementById("confirmPassword").value;
 
-            </div>
+                if (!name) {
+                    showToast("Please enter your full name", "error");
+                    document.getElementById("name").focus();
+                    return;
+                }
+                if (!email || !email.includes("@")) {
+                    showToast("Please enter a valid email address", "error");
+                    document.getElementById("email").focus();
+                    return;
+                }
+                if (!password) {
+                    showToast("Please create a password", "error");
+                    document.getElementById("password").focus();
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    showToast("Passwords do not match", "error");
+                    document.getElementById("confirmPassword").focus();
+                    return;
+                }
 
-            <div class="form-row">
+                goToStep(2);
+            });
+        }
 
-                <div class="form-group">
-                    <label>Skills I Can Teach *</label>
-                    <input
-                        type="text"
-                        placeholder="e.g. JavaScript, HTML"
-                        id="teachSkills"
-                        required
-                    >
-                </div>
+        if (btnPrev) {
+            btnPrev.addEventListener("click", () => {
+                goToStep(1);
+            });
+        }
 
-                <div class="form-group">
-                    <label>Skills I Want To Learn *</label>
-                    <input
-                        type="text"
-                        placeholder="e.g. Python, Java"
-                        id="learnSkills"
-                        required
-                    >
-                </div>
-
-            </div>
-
-            <button type="submit" class="create-account-btn">
-                Create Account
-            </button>
-
-            <p class="signin-text">
-                Already have an account?
-                <a href="login.html">Sign in</a>
-            </p>
-
-        </form>
-
-    </div>
-
-</main>
-
-<script src="script.js"></script>
-
+        // If user is editing their profile (already logged in), show both steps or step 2 directly
+        window.addEventListener("DOMContentLoaded", () => {
+            const currentUser = getCurrentUser();
+            if (currentUser) {
+                // If editing profile, show both steps on one clean page or allow direct edit
+                step1.style.display = "block";
+                step2.style.display = "block";
+                if (btnNext) btnNext.style.display = "none";
+                if (btnPrev) btnPrev.style.display = "none";
+                const stepsIndicator = document.getElementById("onboarding-steps-indicator");
+                if (stepsIndicator) stepsIndicator.style.display = "none";
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,164 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>SkillSwap - Dashboard</title>
-
+    <title>Dashboard - SkillSwap</title>
+    <meta name="description" content="Manage your skill exchanges, pending connections, and peer learning sessions.">
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-    <nav>
-        <div class="logo">SkillSwap 🚀</div>
+    <!-- Sticky Navigation -->
+    <nav class="navbar" id="main-nav"></nav>
 
-        <div>
-            <a href="index.html">Home</a>
-            <a href="connections.html">Connections 🤝</a>
-            <a href="chat.html">Chat 💬</a>
-            <a href="browse-skills.html">Browse Skills</a>
-            <a href="#" id="logout-btn">Logout 🚪</a>
-        </div>
-    </nav>
-
+    <!-- Main Dashboard Container -->
     <main class="dashboard">
 
-        <div class="dashboard-header">
-
+        <!-- Top Greeting Header -->
+        <header class="dashboard-header">
             <div>
-                <h1>Welcome back! 👋</h1>
-                <p>Manage your skills and connections</p>
+                <h1>Welcome back</h1>
+                <p>Ready to learn something new today?</p>
             </div>
 
             <div class="dashboard-buttons">
-                <a href="signup.html" class="button">
-                    ✏️ Edit Profile
+                <a href="browse-skills.html" class="btn btn-primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    Find a skill
                 </a>
 
-                <a href="index.html" class="button">
-                    ➕ Find Partners
+                <a href="signup.html" class="btn btn-secondary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                    Edit Profile
                 </a>
             </div>
+        </header>
 
+        <!-- Real Stats Overview Cards -->
+        <section class="dashboard-stats" aria-label="Account Statistics">
+            <!-- Total Connections -->
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                </div>
+                <div>
+                    <p>Total Connections</p>
+                    <h2 id="total-connections">0</h2>
+                    <span>Active skill partners</span>
+                </div>
+            </div>
+
+            <!-- Pending Requests -->
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fffbeb; color:#f59e0b;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                </div>
+                <div>
+                    <p>Pending Requests</p>
+                    <h2 id="pending-requests">0</h2>
+                    <span>Awaiting confirmation</span>
+                </div>
+            </div>
+
+            <!-- Skills Offered -->
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#ecfdf5; color:#10b981;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                </div>
+                <div>
+                    <p>Skills Offered</p>
+                    <h2 id="skills-count">0</h2>
+                    <span>Available to teach</span>
+                </div>
+            </div>
+
+            <!-- Community Rating -->
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#f5f3ff; color:#7c3aed;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                </div>
+                <div>
+                    <p>Community Rating</p>
+                    <h2>5.0</h2>
+                    <span>Verified feedback</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Primary 2-Column Content Grid -->
+        <div class="dashboard-grid">
+            <!-- Profile Summary Card -->
+            <div class="dashboard-card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="color:var(--primary);"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    Profile Summary
+                </h2>
+                <p>Your current skill exchange profile as seen by others</p>
+
+                <div id="dashboard-user">
+                    <div class="skeleton-card" style="padding:16px;">
+                        <div class="skeleton skeleton-text" style="width:50%; margin-bottom:8px;"></div>
+                        <div class="skeleton skeleton-text" style="width:80%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Timeline Card -->
+            <div class="dashboard-card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="color:var(--primary);"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    Recent Activity
+                </h2>
+                <p>Your latest connection requests and updates</p>
+
+                <div id="recent-activity">
+                    <div style="padding:16px; text-align:center; color:var(--text-muted);">
+                        <p>Loading activity stream...</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
+        <!-- Skills Breakdown Grid -->
+        <div class="dashboard-grid">
+            <!-- Skills Offered Card -->
+            <div class="dashboard-card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="color:var(--primary);"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                    Skills I Can Teach
+                </h2>
+                <p>Skills you have listed to share with other members</p>
 
-        <!-- Dashboard Stats -->
+                <div id="skills-offered">
+                    <p class="text-muted">Loading skills...</p>
+                </div>
+            </div>
 
-<div class="dashboard-stats">
+            <!-- Skills Wanted Card -->
+            <div class="dashboard-card">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="color:var(--success);"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    Skills I Want To Learn
+                </h2>
+                <p>Topics you are actively looking to explore</p>
 
-    <div class="stat-card">
-        <div class="stat-icon">👥</div>
-        <div>
-            <p>Total Connections</p>
-            <h2 id="total-connections">0</h2>
-            <span>Completed exchanges</span>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-icon">☆</div>
-        <div>
-            <p>Rating</p>
-            <h2>5.0</h2>
-            <span>Average rating</span>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-icon">▢</div>
-        <div>
-            <p>Pending Requests</p>
-            <h2 id="pending-requests">0</h2>
-            <span>In progress</span>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-icon">🎓</div>
-        <div>
-            <p>Skills Offered</p>
-            <h2 id="skills-count">0</h2>
-            <span>Available skills</span>
+                <div id="skills-wanted">
+                    <p class="text-muted">Loading skills...</p>
+                </div>
+            </div>
         </div>
 
-    </div>
-</div>
+    </main>
 
-<!-- Dashboard Content -->
-
-<div class="dashboard-grid">
-
-    <!-- Profile Summary -->
-
-    <div class="dashboard-card">
-
-        <h2>👤 Profile Summary</h2>
-
-        <p>Your current skill profile</p>
-
-        <div id="dashboard-user">
-            Loading profile...
-        </div>
-
-    </div>
-
-
-    <!-- Recent Activity -->
-
-    <div class="dashboard-card">
-
-        <h2>💬 Recent Activity</h2>
-
-        <p>Your latest SkillSwap activity</p>
-
-        <div id="recent-activity">
-            <p>No recent activity yet.</p>
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- Skills -->
-
-<div class="dashboard-grid">
-
-    <!-- Skills Offered -->
-
-    <div class="dashboard-card">
-
-        <h2>🎓 My Skills Offered</h2>
-
-        <div id="skills-offered">
-            Loading skills...
-        </div>
-
-    </div>
-
-
-    <!-- Skills Wanted -->
-
-    <div class="dashboard-card">
-
-        <h2>📚 Skills I Want To Learn</h2>
-
-        <div id="skills-wanted">
-            Loading skills...
-        </div>
-
-    </div>
-
-</div>
-
-</main>
-
-<script src="script.js"></script>
-
+    <!-- Global Application Engine -->
+    <script src="script.js"></script>
 </body>
-
 </html>

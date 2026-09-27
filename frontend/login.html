@@ -1,73 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>SkillSwap - Login</title>
-
+    <title>Sign In - SkillSwap</title>
+    <meta name="description" content="Sign in to your SkillSwap account to manage skill exchanges and connect with partners.">
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-    <nav>
-        <div class="logo">SkillSwap 🚀</div>
+    <!-- Sticky Navigation -->
+    <nav class="navbar" id="main-nav"></nav>
 
-        <div>
-            <a href="index.html">Home</a>
-            <a href="signup.html">Create Profile</a>
-        </div>
-    </nav>
-
-    <section class="login-page">
-
+    <!-- Main Auth Workspace -->
+    <main class="login-page">
         <div class="login-card">
 
             <div class="login-header">
-                <h2>🔐 Login</h2>
+                <div class="nav-logo-icon" style="width:44px; height:44px; margin:0 auto 16px; border-radius:12px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24">
+                        <path d="M16 3h5v5"></path>
+                        <path d="M4 20L21 3"></path>
+                        <path d="M21 16v5h-5"></path>
+                        <path d="M15 15l6 6"></path>
+                        <path d="M4 4l5 5"></path>
+                    </svg>
+                </div>
+                <h2>Welcome back</h2>
+                <p>Sign in to your SkillSwap account to continue exchanging skills</p>
             </div>
 
             <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input
+                        type="email"
+                        id="login-email"
+                        placeholder="alex@example.com"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
 
-                <label for="login-email">Email</label>
-
-                <input
-                    type="email"
-                    id="login-email"
-                    placeholder="Enter your email"
-                    required
-                >
-
-                <label for="loginPassword">Password</label>
-
-                <input
-                    type="password"
-                    id="loginPassword"
-                    placeholder="Enter your password"
-                    required
-                >
+                <div class="form-group">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label for="loginPassword">Password</label>
+                    </div>
+                    <input
+                        type="password"
+                        id="loginPassword"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
 
                 <button type="submit" class="login-button">
-                    Login 🚀
+                    <span>Sign In</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </button>
 
                 <p id="login-message"></p>
 
                 <p class="signup-link">
-                    Don't have an account?
-                    <a href="signup.html">Create Profile</a>
+                    Don't have an account yet?
+                    <a href="signup.html">Create an account</a>
                 </p>
-
             </form>
 
         </div>
+    </main>
 
-    </section>
-
+    <!-- Global Application Engine -->
     <script src="script.js"></script>
-
 </body>
-
 </html>

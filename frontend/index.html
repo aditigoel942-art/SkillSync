@@ -3,132 +3,348 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkillSwap - Exchange Skills, Grow Together</title>
-    <link rel="stylesheet" href="style.css">                       <!-- connecting html file to css file-->
-    
+    <title>SkillSwap - Peer-to-Peer Skill Exchange Platform</title>
+    <meta name="description" content="Exchange your skills 1-on-1 with passionate peers. Teach what you know, learn what you want, and grow together without expensive course subscriptions.">
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-    <nav>
-        <div class="logo">SkillSwap 🚀</div>
+    <!-- Professional Sticky Navigation -->
+    <nav class="navbar" id="main-nav"></nav>
 
-        <div>
-            <a href="index.html">Home</a>
-            <a href="login.html">Login</a>      <!--navbar ka Login click karne par login.html khulega-->
-            <a href="connections.html">Connections 🤝</a>  
-            <a href="chat.html">Chat 💬</a>
-            <a href="browse-skills.html">Browse Skills</a>
-            <a href="dashboard.html">Dashboard 📊</a>             <!-- website/homepage par dashboard button add-->
-            <a href="#" id="logout-btn">Logout 🚪</a>         <!--Logout add karenga-->            
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-container">
+            <!-- Left Hero Column -->
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="hero-badge-dot"></span>
+                    <span>The Peer-to-Peer Skill Exchange</span>
+                </div>
+
+                <h1>
+                    Learn from people.<br>
+                    <span class="gradient-text">Share what you know.</span>
+                </h1>
+
+                <p class="hero-subtitle">
+                    SkillSwap connects you with passionate learners and creators. Exchange your expertise 1-on-1 without paying for expensive courses or recurring subscriptions.
+                </p>
+
+                <div class="hero-cta-group" id="hero-cta-group">
+                    <a href="browse-skills.html" class="btn btn-primary btn-lg" id="hero-primary-cta">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        Find a skill
+                    </a>
+                    <a href="signup.html" class="btn btn-secondary btn-lg" id="hero-secondary-cta">
+                        Create your profile
+                    </a>
+                </div>
+
+                <div class="skill-examples">
+                    <span class="skill-examples-label">Popular exchanges:</span>
+                    <a href="browse-skills.html" class="skill-pill">React</a>
+                    <a href="browse-skills.html" class="skill-pill">Python</a>
+                    <a href="browse-skills.html" class="skill-pill">UI/UX Design</a>
+                    <a href="browse-skills.html" class="skill-pill">Node.js</a>
+                    <a href="browse-skills.html" class="skill-pill">Data Science</a>
+                </div>
+            </div>
+
+            <!-- Right Hero Column: Real SkillSwap Product Preview UI Mockup -->
+            <div class="hero-mockup-wrapper">
+                <div class="product-preview-card">
+                    <div class="mockup-header">
+                        <div class="mockup-dots">
+                            <span class="mockup-dot" style="background:#f87171;"></span>
+                            <span class="mockup-dot" style="background:#fbbf24;"></span>
+                            <span class="mockup-dot" style="background:#34d399;"></span>
+                        </div>
+                        <span class="mockup-header-title">Direct Skill Exchange</span>
+                    </div>
+
+                    <div class="mockup-body">
+                        <!-- Match header pill -->
+                        <div class="swap-match-header">
+                            <div class="match-tag">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                Complementary Match
+                            </div>
+                            <span class="match-percentage">100% Match</span>
+                        </div>
+
+                        <!-- 2 Users in direct mutual swap -->
+                        <div class="exchange-visual">
+                            <!-- User 1 -->
+                            <div class="user-mini-card">
+                                <div class="user-mini-header">
+                                    <div class="user-mini-avatar">AM</div>
+                                    <div class="user-mini-name">Alex Morgan</div>
+                                </div>
+                                <div class="skill-row">
+                                    <span class="skill-row-label">Teaches</span>
+                                    <span class="badge badge-teach">React</span>
+                                    <span class="badge badge-teach">TypeScript</span>
+                                </div>
+                                <div class="skill-row" style="margin-top:4px;">
+                                    <span class="skill-row-label">Wants to Learn</span>
+                                    <span class="badge badge-learn">UI Design</span>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Connector Arrow -->
+                            <div class="exchange-arrow-circle" title="Mutual Knowledge Swap">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 16l-4-4m0 0l4-4m-4 4h18m-4 4l4-4m0 0l-4-4m4 4H3"></path></svg>
+                            </div>
+
+                            <!-- User 2 -->
+                            <div class="user-mini-card">
+                                <div class="user-mini-header">
+                                    <div class="user-mini-avatar" style="background: linear-gradient(135deg, #0ea5e9, #6366f1);">SC</div>
+                                    <div class="user-mini-name">Sophia Chen</div>
+                                </div>
+                                <div class="skill-row">
+                                    <span class="skill-row-label">Teaches</span>
+                                    <span class="badge badge-teach">UI Design</span>
+                                    <span class="badge badge-teach">Figma</span>
+                                </div>
+                                <div class="skill-row" style="margin-top:4px;">
+                                    <span class="skill-row-label">Wants to Learn</span>
+                                    <span class="badge badge-learn">React</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CTA inside preview -->
+                        <a href="browse-skills.html" class="mockup-action-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                            Connect & Exchange Skills
+                        </a>
+                    </div>
+
+                    <!-- Floating live pill badge -->
+                    <div class="mockup-floating-pill">
+                        <span class="live-indicator-dot"></span>
+                        <span>WebRTC Live Video & Chat Ready</span>
+                    </div>
+                </div>
+            </div>
         </div>
-    </nav>
+    </header>
 
-<section class="hero">
-
-    <div class="hero-badge">
-        ✨ 100% Free • Learn From Each Other
-    </div>
-
-    <h1>
-        Learn Skills.<br>
-        Teach Skills.<br>
-        <span>Grow Together. 🚀</span>
-    </h1>
-
-    <p>
-        Don't pay to learn a new skill.
-        Exchange what you know for what you want to learn.
-    </p>
-
-    <a href="browse-skills.html" class="browse-btn">
-    Browse Skills 🔎
-</a>
-
-    <div class="skill-examples">
-        <span>💻 Java</span>
-        <span>⚛️ React</span>
-        <span>🐍 Python</span>
-        <span>🎨 Design</span>
-        <span>📊 Excel</span>
-    </div>
-
- </section>
-               
-    <section class="section">
-
-        <h2>How SkillSwap Works</h2>
-
-        <div class="cards">
-
-            <div class="card">
-                <h3>1️⃣ Create Profile</h3>
-                <p>
-                    Tell us what skills you can teach
-                    and what skills you want to learn.
-                </p>
+    <!-- Trust / Value Strip -->
+    <section class="trust-strip">
+        <div class="trust-strip-inner">
+            <div class="trust-item">
+                <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                <span>Zero Subscription Fees</span>
             </div>
-
-            <div class="card">
-                <h3>2️⃣ Find Your Match</h3>
-                <p>
-                    Our system finds students
-                    whose skills match your learning needs.
-                </p>
+            <div class="trust-item">
+                <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <span>Direct 1-on-1 Mentorship</span>
             </div>
-
-            <div class="card">
-                <h3>3️⃣ Exchange Skills</h3>
-                <p>
-                    Connect with your match and
-                    learn from each other for free.
-                </p>
+            <div class="trust-item">
+                <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span>Real-Time Messaging</span>
             </div>
-
+            <div class="trust-item">
+                <svg class="trust-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                <span>Integrated Live Video Calls</span>
+            </div>
         </div>
-
     </section>
 
-    <!--this will add why skillswap? section on web page-->
-    <section class="why-section">
+    <!-- How SkillSwap Works -->
+    <section class="section-works" id="how-it-works">
+        <div class="section-container">
+            <div class="section-header">
+                <h2>How SkillSwap Works</h2>
+                <p>Learn new abilities without barriers through a reciprocal 3-step exchange.</p>
+            </div>
 
-    <h2>Why SkillSwap?</h2>
+            <div class="steps-grid">
+                <!-- Step 1 -->
+                <div class="step-card">
+                    <div class="step-num-badge">01</div>
+                    <h3>Build your profile</h3>
+                    <p>List the skills you have mastery in and can teach, alongside the skills you are eager to learn next.</p>
+                </div>
 
-    <p class="why-subtitle">
-        Learn more, spend less, and grow with other students.
-    </p>
+                <!-- Step 2 -->
+                <div class="step-card">
+                    <div class="step-num-badge">02</div>
+                    <h3>Find your match</h3>
+                    <p>Discover community members whose learning goals and teaching skills complement your profile.</p>
+                </div>
 
-    <div class="why-cards">
+                <!-- Step 3 -->
+                <div class="step-card">
+                    <div class="step-num-badge">03</div>
+                    <h3>Start learning</h3>
+                    <p>Connect, message in real-time, and launch 1-on-1 live video sessions with interactive screen sharing.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <div class="why-card">
-            <div class="why-icon">🎓</div>
-            <h3>Learn for Free</h3>
-            <p>
-                Learn new skills without paying for expensive courses.
-            </p>
+    <!-- Popular Skills Section -->
+    <section class="section-popular">
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Popular Skills in High Demand</h2>
+                <p>Browse our vibrant directory of skills actively taught and learned today.</p>
+            </div>
+
+            <div class="popular-skills-grid">
+                <a href="browse-skills.html" class="popular-skill-card">
+                    <div class="popular-skill-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                    </div>
+                    <div class="popular-skill-info">
+                        <h4>Web Development</h4>
+                        <span>React, JavaScript, HTML/CSS</span>
+                    </div>
+                </a>
+
+                <a href="browse-skills.html" class="popular-skill-card">
+                    <div class="popular-skill-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+                    </div>
+                    <div class="popular-skill-info">
+                        <h4>Python & Backend</h4>
+                        <span>Django, APIs, Node.js</span>
+                    </div>
+                </a>
+
+                <a href="browse-skills.html" class="popular-skill-card">
+                    <div class="popular-skill-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path></svg>
+                    </div>
+                    <div class="popular-skill-info">
+                        <h4>UI/UX & Design</h4>
+                        <span>Figma, Prototyping, Design Systems</span>
+                    </div>
+                </a>
+
+                <a href="browse-skills.html" class="popular-skill-card">
+                    <div class="popular-skill-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    </div>
+                    <div class="popular-skill-info">
+                        <h4>Data & Machine Learning</h4>
+                        <span>Data Analysis, Excel, AI Models</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits / Features -->
+    <section class="section-benefits">
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Engineered for Seamless Knowledge Exchange</h2>
+                <p>Everything you need to find partners, communicate, and practice live.</p>
+            </div>
+
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    </div>
+                    <h3>Reciprocal Exchange</h3>
+                    <p>Trade your knowledge directly with someone who holds the exact skill you desire.</p>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    </div>
+                    <h3>Real-Time Chat</h3>
+                    <p>Connect immediately with low-latency messaging, typing indicators, and read receipts.</p>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                    </div>
+                    <h3>Interactive Video</h3>
+                    <p>Host live WebRTC video calls with built-in screen share and shared session notes.</p>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    </div>
+                    <h3>Flexible Scheduling</h3>
+                    <p>Learn at your pace on your schedule with mutual partners invested in your mutual progress.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA Banner -->
+    <section class="section-cta">
+        <div class="cta-banner">
+            <h2>Ready to expand your skillset?</h2>
+            <p>Join thousands of learners exchanging real-world knowledge every single day.</p>
+            <div class="cta-banner-buttons">
+                <a href="browse-skills.html" class="btn btn-cta-primary btn-lg">
+                    Find a skill partner
+                </a>
+                <a href="signup.html" class="btn btn-cta-secondary btn-lg">
+                    Create free account
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Professional Footer -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <a href="index.html" class="nav-logo">
+                    <span class="nav-logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="19" height="19">
+                            <path d="M16 3h5v5"></path>
+                            <path d="M4 20L21 3"></path>
+                            <path d="M21 16v5h-5"></path>
+                            <path d="M15 15l6 6"></path>
+                            <path d="M4 4l5 5"></path>
+                        </svg>
+                    </span>
+                    <span class="nav-logo-text" style="color:white;">Skill<span style="color:#818cf8;">Swap</span></span>
+                </a>
+                <p>Exchange skills. Grow together. A community built for peer-to-peer knowledge sharing and live collaborative learning.</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Product</h4>
+                <div class="footer-links">
+                    <a href="browse-skills.html">Discover Skills</a>
+                    <a href="index.html#how-it-works">How It Works</a>
+                    <a href="connections.html">Connections Hub</a>
+                    <a href="chat.html">Live Messaging</a>
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4>Account</h4>
+                <div class="footer-links">
+                    <a href="login.html">Sign In</a>
+                    <a href="signup.html">Create Account</a>
+                    <a href="dashboard.html">User Dashboard</a>
+                </div>
+            </div>
         </div>
 
-        <div class="why-card">
-            <div class="why-icon">🤝</div>
-            <h3>Exchange Skills</h3>
-            <p>
-                Teach what you know and learn what you want in return.
-            </p>
+        <div class="footer-bottom">
+            <span>&copy; 2026 SkillSwap. All rights reserved.</span>
+            <span>Built for modern peer skill exchanges.</span>
         </div>
+    </footer>
 
-        <div class="why-card">
-            <div class="why-icon">🌱</div>
-            <h3>Grow Together</h3>
-            <p>
-                Connect with students and grow your skills together.
-            </p>
-        </div>
-
-    </div>
-
-</section>
-    
-<script src="script.js"></script>
-
+    <!-- Global Application Engine -->
+    <script src="script.js"></script>
 </body>
 </html>
