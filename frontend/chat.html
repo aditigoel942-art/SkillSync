@@ -7,6 +7,16 @@
     <meta name="description" content="Chat in real-time with your skill partners, coordinate swap agendas, or launch live video sessions.">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+    (function() {
+        try {
+            var t = localStorage.getItem('skillswap_theme');
+            if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        } catch(e) {}
+    })();
+</script>
 </head>
 <body class="chat-body">
 

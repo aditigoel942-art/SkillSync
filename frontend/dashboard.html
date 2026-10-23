@@ -6,6 +6,16 @@
     <title>Dashboard - SkillSwap</title>
     <meta name="description" content="Manage your skill exchanges, pending connections, and peer learning sessions.">
     <link rel="stylesheet" href="style.css">
+<script>
+    (function() {
+        try {
+            var t = localStorage.getItem('skillswap_theme');
+            if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        } catch(e) {}
+    })();
+</script>
 </head>
 <body>
 
@@ -80,8 +90,8 @@
                 </div>
                 <div>
                     <p>Community Rating</p>
-                    <h2>5.0</h2>
-                    <span>Verified feedback</span>
+                    <h2 id="community-rating-val">5.0</h2>
+                    <span id="community-rating-count">Verified feedback</span>
                 </div>
             </div>
         </section>
@@ -120,6 +130,54 @@
             </div>
         </div>
 
+        <!-- Verified Reviews & Feedback Received -->
+        <div class="dashboard-card" style="margin-bottom:var(--space-6);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+                <div>
+                    <h2 style="margin-bottom:2px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="color:#f59e0b;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        Peer Reviews & Session Feedback
+                    </h2>
+                    <p style="margin-bottom:0;">Ratings and reviews given by peers after live skill exchange sessions</p>
+                </div>
+                <div id="reviews-header-summary" style="display:flex; align-items:center; gap:8px;">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+
+            <div id="dashboard-reviews-list" style="display:flex; flex-direction:column; gap:12px;">
+                <div style="padding:16px; text-align:center; color:var(--text-muted);">
+                    <p>Loading session reviews...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI-Proctored Learning Impact Analyzer Card -->
+        <div class="dashboard-card" style="margin-bottom:var(--space-6);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+                <div>
+                    <h2 style="margin-bottom:2px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="color:var(--primary);"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                        AI-Proctored Learning Impact Analyzer
+                    </h2>
+                    <p style="margin-bottom:0;">Measures learning progress through proctored pre-tests and post-tests, comparing baseline scores to post-session mastery under verified proctoring.</p>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <a href="connections.html" class="btn btn-primary btn-sm" style="padding:6px 12px; font-size:0.8rem;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        Start Learning Assessment
+                    </a>
+                    <span class="badge badge-neutral" style="font-size:0.75rem; padding:4px 10px;">Proctored Rubric</span>
+                </div>
+            </div>
+
+            <div id="dashboard-impact-reports-list" style="display:flex; flex-direction:column; gap:12px;">
+                <div style="padding:16px; text-align:center; color:var(--text-muted);">
+                    <p>Loading proctored learning impact records...</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Skills Breakdown Grid -->
         <div class="dashboard-grid">
             <!-- Skills Offered Card -->
@@ -151,7 +209,9 @@
 
     </main>
 
-    <!-- Global Application Engine -->
+    <!-- Global Application Engine & Verification Engine -->
     <script src="script.js"></script>
+    <script src="skillVerification.js"></script>
+    <script src="learningImpact.js"></script>
 </body>
 </html>

@@ -77,7 +77,63 @@ window.alert = function (msg) {
 };
 
 // --------------------------------------------------------
-// 2. Authentication & User Utilities
+// 2. Theme Management (Light & Dark Mode)
+// --------------------------------------------------------
+function getSavedTheme() {
+    try {
+        const saved = localStorage.getItem("skillswap_theme");
+        if (saved === "dark" || saved === "light") {
+            return saved;
+        }
+        // Fallback to system preference if user hasn't chosen
+        if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            return "dark";
+        }
+    } catch (e) {
+        // Fallback default
+    }
+    return "light";
+}
+
+function applyTheme(theme) {
+    const root = document.documentElement;
+    if (theme === "dark") {
+        root.setAttribute("data-theme", "dark");
+    } else {
+        root.removeAttribute("data-theme");
+    }
+    try {
+        localStorage.setItem("skillswap_theme", theme);
+    } catch (e) {}
+
+    // Update icons in any active toggle buttons on the page
+    document.querySelectorAll(".theme-toggle-btn").forEach(btn => {
+        const isDark = theme === "dark";
+        btn.setAttribute("title", isDark ? "Switch to Light Mode" : "Switch to Dark Mode");
+        btn.setAttribute("aria-label", isDark ? "Switch to Light Mode" : "Switch to Dark Mode");
+        btn.innerHTML = isDark
+            ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+    });
+
+    const mobileThemeLabel = document.getElementById("mobile-theme-text");
+    if (mobileThemeLabel) {
+        mobileThemeLabel.textContent = theme === "dark" ? "Light Mode" : "Dark Mode";
+    }
+}
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+    const next = current === "dark" ? "light" : "dark";
+    applyTheme(next);
+    showToast(`Switched to ${next === "dark" ? "Dark" : "Light"} mode`, "info", 2000);
+}
+
+// Immediately apply saved theme on parse so there is zero flash
+applyTheme(getSavedTheme());
+
+// --------------------------------------------------------
+// 3. Authentication & User Utilities
 // --------------------------------------------------------
 function escapeHtml(str) {
     if (!str) return "";
@@ -122,7 +178,7 @@ function handleLogout(event) {
 }
 
 function checkRouteAccess() {
-    const publicPages = ["index.html", "login.html", "signup.html", "browse-skills.html", ""];
+    const publicPages = ["index.html", "login.html", "signup.html", "browse-skills.html", "profile.html", ""];
     const path = window.location.pathname;
     const page = path.substring(path.lastIndexOf("/") + 1).toLowerCase();
 
@@ -176,7 +232,16 @@ function renderNavbar() {
             <a href="index.html#how-it-works" class="nav-link">How it works</a>
         `;
 
+        const isCurrentDark = document.documentElement.getAttribute("data-theme") === "dark";
+        const themeBtnTitle = isCurrentDark ? "Switch to Light Mode" : "Switch to Dark Mode";
+        const themeIconSvg = isCurrentDark
+            ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+
         actionsHtml = `
+            <button type="button" class="theme-toggle-btn" id="theme-toggle-nav" aria-label="${themeBtnTitle}" title="${themeBtnTitle}">
+                ${themeIconSvg}
+            </button>
             <a href="login.html" class="nav-btn-signin ${currentPage === "login.html" ? "active-nav" : ""}">Sign in</a>
             <a href="signup.html" class="nav-btn-signup">Get started</a>
         `;
@@ -185,6 +250,10 @@ function renderNavbar() {
             <a href="index.html" class="mobile-link ${currentPage === "index.html" ? "active-nav" : ""}">Home</a>
             <a href="browse-skills.html" class="mobile-link ${currentPage === "browse-skills.html" ? "active-nav" : ""}">Discover</a>
             <a href="index.html#how-it-works" class="mobile-link">How it works</a>
+            <button type="button" class="mobile-link" id="mobile-theme-toggle" style="display:flex; align-items:center; justify-content:space-between;">
+                <span>Appearance</span>
+                <span id="mobile-theme-text" style="font-size:0.85rem; opacity:0.8;">${isCurrentDark ? "Dark Mode" : "Light Mode"}</span>
+            </button>
             <div class="mobile-divider"></div>
             <a href="login.html" class="mobile-link ${currentPage === "login.html" ? "active-nav" : ""}">Sign in</a>
             <a href="signup.html" class="mobile-link mobile-btn-primary">Get started</a>
@@ -197,6 +266,11 @@ function renderNavbar() {
         const displayName = escapeHtml(currentUser.name || "My Account");
         const displayEmail = escapeHtml(currentUser.email || "");
         const profileUserId = currentUser._id || "";
+        const isCurrentDark = document.documentElement.getAttribute("data-theme") === "dark";
+        const themeBtnTitle = isCurrentDark ? "Switch to Light Mode" : "Switch to Dark Mode";
+        const themeIconSvg = isCurrentDark
+            ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
 
         linksHtml = `
             <a href="index.html" class="nav-link ${currentPage === "index.html" ? "active-nav" : ""}">Home</a>
@@ -210,6 +284,9 @@ function renderNavbar() {
         `;
 
         actionsHtml = `
+            <button type="button" class="theme-toggle-btn" id="theme-toggle-nav" aria-label="${themeBtnTitle}" title="${themeBtnTitle}">
+                ${themeIconSvg}
+            </button>
             <div class="profile-dropdown-wrapper" id="profile-dropdown-wrapper">
                 <button type="button" class="profile-trigger-btn" id="profile-trigger-btn" aria-haspopup="true" aria-expanded="false" title="Account Menu">
                     <span class="user-avatar-badge">${initials}</span>
@@ -237,6 +314,13 @@ function renderNavbar() {
                         <svg class="dropdown-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                         <span>Edit Profile</span>
                     </a>
+                    <button type="button" class="dropdown-item" id="theme-toggle-dropdown" style="display:flex; align-items:center; justify-content:space-between;">
+                        <span style="display:flex; align-items:center; gap:var(--space-3);">
+                            <span class="dropdown-icon-svg" style="display:flex; align-items:center;">${themeIconSvg}</span>
+                            <span>Theme</span>
+                        </span>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">${isCurrentDark ? "Dark" : "Light"}</span>
+                    </button>
                     <div class="dropdown-divider"></div>
                     <button type="button" class="dropdown-item dropdown-logout-btn" id="logout-btn">
                         <svg class="dropdown-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
@@ -262,6 +346,10 @@ function renderNavbar() {
             <a href="dashboard.html" class="mobile-link ${currentPage === "dashboard.html" ? "active-nav" : ""}">Dashboard</a>
             <a href="profile.html?id=${profileUserId}" class="mobile-link ${currentPage === "profile.html" ? "active-nav" : ""}">My Profile</a>
             <a href="signup.html" class="mobile-link">Edit Profile</a>
+            <button type="button" class="mobile-link" id="mobile-theme-toggle" style="display:flex; align-items:center; justify-content:space-between;">
+                <span>Appearance</span>
+                <span id="mobile-theme-text" style="font-size:0.85rem; opacity:0.8;">${isCurrentDark ? "Dark Mode" : "Light Mode"}</span>
+            </button>
             <div class="mobile-divider"></div>
             <button type="button" class="mobile-link mobile-logout-btn" id="mobile-logout-btn">Sign out</button>
         `;
@@ -365,6 +453,31 @@ function setupNavbarEvents() {
 
     const mobileLogoutBtn = document.getElementById("mobile-logout-btn");
     if (mobileLogoutBtn) mobileLogoutBtn.addEventListener("click", handleLogout);
+
+    // Theme Toggle Handlers
+    const themeNavBtn = document.getElementById("theme-toggle-nav");
+    if (themeNavBtn) {
+        themeNavBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleTheme();
+        });
+    }
+
+    const themeDropdownBtn = document.getElementById("theme-toggle-dropdown");
+    if (themeDropdownBtn) {
+        themeDropdownBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleTheme();
+        });
+    }
+
+    const mobileThemeToggle = document.getElementById("mobile-theme-toggle");
+    if (mobileThemeToggle) {
+        mobileThemeToggle.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleTheme();
+        });
+    }
 }
 
 // --------------------------------------------------------
@@ -439,6 +552,9 @@ if (signupForm) {
     signupForm.addEventListener("submit", async function(event) {
         event.preventDefault();
 
+        const currentUser = getCurrentUser();
+        const isEditing = !!(currentUser && currentUser._id);
+
         const name = document.getElementById("name").value.trim();
         const email = document.getElementById("email").value.trim();
         const teachSkills = document.getElementById("teachSkills").value
@@ -451,52 +567,73 @@ if (signupForm) {
             .map(s => s.trim())
             .filter(Boolean);
 
-        const password = document.getElementById("password").value;
-        const confirmPassword = document.getElementById("confirmPassword").value;
+        const passwordInput = document.getElementById("password");
+        const confirmPasswordInput = document.getElementById("confirmPassword");
+        const password = passwordInput ? passwordInput.value : "";
+        const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : "";
         const location = document.getElementById("location") ? document.getElementById("location").value.trim() : "";
         const bio = document.getElementById("bio") ? document.getElementById("bio").value.trim() : "";
 
-        if (password !== confirmPassword) {
+        if (!isEditing && password !== confirmPassword) {
+            showToast("Passwords do not match", "error");
+            return;
+        }
+
+        if (isEditing && password && password !== confirmPassword) {
             showToast("Passwords do not match", "error");
             return;
         }
 
         try {
-            const response = await fetch("http://localhost:5000/api/users", {
-                method: "POST",
+            const endpoint = isEditing ? `/api/users/${currentUser._id}` : "/api/users";
+            const method = isEditing ? "PUT" : "POST";
+
+            const bodyPayload = {
+                name,
+                email,
+                location,
+                bio,
+                teachSkills,
+                learnSkills
+            };
+
+            if (password) {
+                bodyPayload.password = password;
+            } else if (!isEditing) {
+                showToast("Please enter a password", "error");
+                return;
+            }
+
+            const response = await fetch(endpoint, {
+                method: method,
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({
-                    name,
-                    email,
-                    password,
-                    location,
-                    bio,
-                    teachSkills,
-                    learnSkills
-                })
+                body: JSON.stringify(bodyPayload)
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                showToast("Profile created successfully! Welcome to SkillSwap.", "success");
+                const updatedUser = data.user || {
+                    ...(currentUser || {}),
+                    ...bodyPayload
+                };
+                localStorage.setItem("currentUser", JSON.stringify(updatedUser));
                 if (data.token) {
                     localStorage.setItem("token", data.token);
                 }
-                if (data.user) {
-                    localStorage.setItem("currentUser", JSON.stringify(data.user));
-                }
+
+                showToast(isEditing ? "Profile updated successfully!" : "Profile created successfully! Welcome to SkillSwap.", "success");
                 signupForm.reset();
                 setTimeout(() => {
-                    window.location.href = "dashboard.html";
-                }, 800);
+                    window.location.href = "profile.html?id=" + updatedUser._id;
+                }, 600);
             } else {
-                showToast(data.message || "Failed to create profile", "error");
+                showToast(data.message || "Failed to save profile", "error");
             }
         } catch (error) {
-            console.error("Signup error:", error);
+            console.error("Profile save error:", error);
             showToast("Unable to reach the server. Please check your connection.", "error");
         }
     });
@@ -515,7 +652,7 @@ if (loginForm) {
         const messageEl = document.getElementById("login-message");
 
         try {
-            const response = await fetch("http://localhost:5000/api/login", {
+            const response = await fetch("/api/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -579,7 +716,7 @@ async function loadConnections(userId) {
     if (!container) return;
 
     try {
-        const response = await fetch(`http://localhost:5000/api/connections/${userId}`);
+        const response = await fetch(`/api/connections/${userId}`);
         const connections = await response.json();
 
         container.innerHTML = "";
@@ -651,7 +788,7 @@ async function loadConnections(userId) {
 
 async function updateConnectionStatus(connectionId, status) {
     try {
-        const response = await fetch(`http://localhost:5000/api/connections/${connectionId}`, {
+        const response = await fetch(`/api/connections/${connectionId}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"
@@ -689,7 +826,7 @@ async function loadAcceptedConnections(userId) {
     if (!container) return;
 
     try {
-        const response = await fetch(`http://localhost:5000/api/accepted-connections/${userId}`);
+        const response = await fetch(`/api/accepted-connections/${userId}`);
         const connections = await response.json();
 
         container.innerHTML = "";
@@ -784,7 +921,7 @@ async function startLiveSession(connectionId, participantId) {
     }
 
     try {
-        const response = await fetch("http://localhost:5000/api/live-sessions", {
+        const response = await fetch("/api/live-sessions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -817,6 +954,18 @@ function initDashboard() {
         if (!currentUser) {
             dashboardUser.innerHTML = "<p>Please sign in to view your dashboard.</p>";
             return;
+        }
+
+        // Fetch latest fresh user data from server if available
+        if (currentUser._id) {
+            fetch(`/api/users/${currentUser._id}`)
+                .then(r => r.ok ? r.json() : null)
+                .then(freshUser => {
+                    if (freshUser) {
+                        localStorage.setItem("currentUser", JSON.stringify(freshUser));
+                    }
+                })
+                .catch(() => {});
         }
 
         // Set dynamic greeting in header if greeting element exists
@@ -870,19 +1019,68 @@ function initDashboard() {
     const skillsWanted = document.getElementById("skills-wanted");
 
     if (skillsOffered && skillsWanted && currentUser) {
+        const verifiedSkills = currentUser.verifiedSkills || [];
+
         skillsOffered.innerHTML = (currentUser.teachSkills && currentUser.teachSkills.length > 0)
-            ? currentUser.teachSkills.map(skill => `<p>${escapeHtml(skill)}</p>`).join("")
-            : "<p class='text-muted'>No skills added</p>";
+            ? currentUser.teachSkills.map(skill => {
+                const verified = verifiedSkills.find(v => v.skill && v.skill.toLowerCase() === skill.toLowerCase());
+                if (verified) {
+                    const levelLabel = verified.verificationLevel || "Practically Assessed";
+                    return `
+                        <div class="skill-item-row">
+                            <div>
+                                <span style="font-weight:600; font-size:0.95rem; color:var(--text-primary);">${escapeHtml(skill)}</span>
+                                <div style="display:flex; align-items:center; gap:6px; margin-top:4px; flex-wrap:wrap;">
+                                    <span class="badge-verification-level badge-practical-level" title="Live AI-Proctored Evidence">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                                        ${escapeHtml(levelLabel)}
+                                    </span>
+                                    <span class="badge-level badge-level-${(verified.estimatedLevel || "intermediate").toLowerCase()}">
+                                        ${verified.estimatedLevel || "Intermediate"} (${verified.score}/100)
+                                    </span>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary btn-sm" onclick="startSkillVerification('${escapeHtml(skill)}')">
+                                Retake Proctored Test
+                            </button>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="skill-item-row">
+                        <div>
+                            <span style="font-weight:600; font-size:0.95rem; color:var(--text-primary);">${escapeHtml(skill)}</span>
+                            <div style="margin-top:4px;">
+                                <span class="badge-self-reported">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                    Self-reported (Not assessed)
+                                </span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="startSkillVerification('${escapeHtml(skill)}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            Verify with AI Proctor
+                        </button>
+                    </div>
+                `;
+            }).join("")
+            : "<p class='text-muted'>No skills added yet. Edit your profile to list skills you can teach!</p>";
 
         skillsWanted.innerHTML = (currentUser.learnSkills && currentUser.learnSkills.length > 0)
-            ? currentUser.learnSkills.map(skill => `<p>${escapeHtml(skill)}</p>`).join("")
-            : "<p class='text-muted'>No skills added</p>";
+            ? currentUser.learnSkills.map(skill => `
+                <div style="padding:10px 14px; margin-bottom:8px; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-md); font-weight:500; display:flex; align-items:center; gap:8px;">
+                    <span style="width:8px; height:8px; border-radius:50%; background:var(--success);"></span>
+                    <span>${escapeHtml(skill)}</span>
+                </div>
+            `).join("")
+            : "<p class='text-muted'>No skills added yet</p>";
     }
 
     // Stats: Connections Count
     const totalConnections = document.getElementById("total-connections");
     if (totalConnections && currentUser) {
-        fetch(`http://localhost:5000/api/accepted-connections/${currentUser._id}`)
+        fetch(`/api/accepted-connections/${currentUser._id}`)
             .then(res => res.json())
             .then(connections => {
                 totalConnections.textContent = connections.length;
@@ -893,7 +1091,7 @@ function initDashboard() {
     // Stats: Pending Requests Count
     const pendingRequests = document.getElementById("pending-requests");
     if (pendingRequests && currentUser) {
-        fetch(`http://localhost:5000/api/connections/${currentUser._id}`)
+        fetch(`/api/connections/${currentUser._id}`)
             .then(res => res.json())
             .then(connections => {
                 const pending = connections.filter(c => c.status === "pending");
@@ -908,12 +1106,80 @@ function initDashboard() {
         skillsCount.textContent = (currentUser.teachSkills || []).length;
     }
 
+    // Dynamic Community Rating & Verified Reviews for Logged-in User Dashboard
+    const ratingValEl = document.getElementById("community-rating-val");
+    const ratingCountEl = document.getElementById("community-rating-count");
+    const dashboardReviewsList = document.getElementById("dashboard-reviews-list");
+    const reviewsHeaderSummary = document.getElementById("reviews-header-summary");
+
+    if (currentUser && (ratingValEl || dashboardReviewsList)) {
+        fetch(`/api/reviews/user/${currentUser._id}`)
+            .then(res => res.json())
+            .then(data => {
+                if (ratingValEl) {
+                    ratingValEl.textContent = data.averageRating ? data.averageRating.toFixed(1) : "5.0";
+                }
+                if (ratingCountEl) {
+                    const count = data.totalReviews || 0;
+                    ratingCountEl.textContent = count === 1 ? "1 verified review" : `${count} verified reviews`;
+                }
+                if (reviewsHeaderSummary) {
+                    reviewsHeaderSummary.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:6px; background:rgba(245,158,11,0.12); padding:4px 10px; border-radius:var(--radius-full); border:1px solid rgba(245,158,11,0.25);">
+                            <span style="color:#fbbf24; font-size:0.9rem;">★</span>
+                            <span style="font-weight:700; font-size:0.85rem; color:#d97706;">${data.averageRating.toFixed(1)} / 5</span>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">(${data.totalReviews} reviews)</span>
+                        </div>
+                    `;
+                }
+
+                if (dashboardReviewsList) {
+                    const reviews = data.reviews || [];
+                    if (reviews.length === 0) {
+                        dashboardReviewsList.innerHTML = `
+                            <div style="padding:20px; text-align:center; background:var(--bg-page); border:1px dashed var(--border-subtle); border-radius:var(--radius-card); color:var(--text-muted);">
+                                <p style="margin:0 0 4px; font-weight:600; color:var(--text-secondary);">No session reviews yet</p>
+                                <p style="font-size:0.85rem; margin:0;">Complete a live exchange session to start receiving peer ratings & reviews!</p>
+                            </div>
+                        `;
+                    } else {
+                        dashboardReviewsList.innerHTML = reviews.map(r => {
+                            const reviewerName = r.reviewer ? (r.reviewer.name || "Peer Learner") : "Peer Learner";
+                            const reviewerInitials = getUserInitials(reviewerName);
+                            const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+                            const dateFormatted = new Date(r.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+
+                            return `
+                                <div style="background:var(--bg-page); border:1px solid var(--border-subtle); border-radius:var(--radius-card); padding:16px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+                                        <div style="display:flex; align-items:center; gap:10px;">
+                                            <div class="dropdown-avatar" style="width:34px; height:34px; font-size:0.85rem;">${reviewerInitials}</div>
+                                            <div>
+                                                <div style="font-weight:600; font-size:0.95rem; color:var(--text-primary);">${escapeHtml(reviewerName)}</div>
+                                                <div style="font-size:0.75rem; color:var(--text-muted);">${dateFormatted} • Exchange: <span style="color:var(--primary); font-weight:600;">${escapeHtml(r.skillTopic || "Skill Exchange")}</span></div>
+                                            </div>
+                                        </div>
+                                        <div style="display:flex; align-items:center; gap:6px;">
+                                            <span style="color:#fbbf24; font-size:1rem; letter-spacing:1px;">${stars}</span>
+                                            <span style="font-size:0.85rem; font-weight:700; color:var(--text-primary);">${r.rating}.0</span>
+                                        </div>
+                                    </div>
+                                    <p style="font-size:0.9rem; color:var(--text-secondary); margin:0; line-height:1.5;">${escapeHtml(r.feedback || "Great peer exchange session!")}</p>
+                                </div>
+                            `;
+                        }).join("");
+                    }
+                }
+            })
+            .catch(err => console.error("Error loading user rating:", err));
+    }
+
     // Dashboard Recent Activity
     const recentActivity = document.getElementById("recent-activity");
     if (recentActivity && currentUser) {
         Promise.all([
-            fetch(`http://localhost:5000/api/accepted-connections/${currentUser._id}`).then(r => r.json()),
-            fetch(`http://localhost:5000/api/connections/${currentUser._id}`).then(r => r.json())
+            fetch(`/api/accepted-connections/${currentUser._id}`).then(r => r.json()),
+            fetch(`/api/connections/${currentUser._id}`).then(r => r.json())
         ])
         .then(([acceptedConnections, requests]) => {
             const activities = [
@@ -1009,7 +1275,7 @@ async function sendDirectConnectionRequest(receiverId, buttonEl) {
             buttonEl.textContent = "Sending...";
         }
 
-        const response = await fetch("http://localhost:5000/api/connections", {
+        const response = await fetch("/api/connections", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -1046,7 +1312,216 @@ async function sendDirectConnectionRequest(receiverId, buttonEl) {
 }
 
 // --------------------------------------------------------
-// 13. DOM Initialization
+// 13. Dynamic Home Page Community Ratings
+// --------------------------------------------------------
+async function initHomePageCommunityRatings() {
+    const gridEl = document.getElementById("home-reviews-grid");
+    const avgRatingEl = document.getElementById("home-avg-rating");
+    const totalCountEl = document.getElementById("home-total-reviews-count");
+    const badgeEl = document.getElementById("home-community-badge");
+    const totalSessionsEl = document.getElementById("home-total-sessions");
+
+    if (!gridEl) return;
+
+    try {
+        const res = await fetch("/api/reviews/community");
+        const data = await res.json();
+
+        if (avgRatingEl && data.averageRating) {
+            avgRatingEl.textContent = data.averageRating.toFixed(1);
+        }
+
+        if (totalCountEl && typeof data.totalReviews === "number") {
+            const cnt = data.totalReviews;
+            totalCountEl.textContent = cnt === 1 ? "Based on 1 verified session" : `Based on ${cnt} verified sessions`;
+        }
+
+        if (badgeEl && data.averageRating) {
+            badgeEl.textContent = `${data.averageRating.toFixed(1)} / 5 Community Rating`;
+        }
+
+        if (totalSessionsEl && typeof data.totalSessions === "number") {
+            totalSessionsEl.textContent = `${data.totalSessions} Sessions`;
+        }
+
+        const reviews = data.recentReviews || [];
+        if (reviews.length === 0) {
+            gridEl.innerHTML = `
+                <div style="grid-column: 1 / -1; padding:24px; text-align:center; background:var(--bg-page); border:1px dashed var(--border-subtle); border-radius:var(--radius-card); color:var(--text-muted);">
+                    <p style="margin:0 0 6px; font-weight:600; color:var(--text-secondary);">Peer reviews are generating as members complete sessions.</p>
+                    <p style="margin:0; font-size:0.85rem;">Be among the first to connect, exchange knowledge, and leave feedback!</p>
+                </div>
+            `;
+            return;
+        }
+
+        gridEl.innerHTML = reviews.slice(0, 6).map(r => {
+            const reviewerName = r.reviewer ? (r.reviewer.name || "Member") : "Member";
+            const revieweeName = r.reviewee ? (r.reviewee.name || "Mentor") : "Mentor";
+            const initials = getUserInitials(reviewerName);
+            const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+            const dateStr = new Date(r.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+
+            return `
+                <div style="background:var(--bg-page); border:1px solid var(--border-subtle); border-radius:var(--radius-card); padding:20px; display:flex; flex-direction:column; justify-content:space-between; transition:transform var(--transition-fast), border-color var(--transition-fast);">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div class="dropdown-avatar" style="width:38px; height:38px; font-size:0.9rem;">${initials}</div>
+                                <div>
+                                    <div style="font-weight:700; font-size:0.95rem; color:var(--text-primary);">${escapeHtml(reviewerName)}</div>
+                                    <div style="font-size:0.75rem; color:var(--text-muted);">Learned with <strong>${escapeHtml(revieweeName)}</strong></div>
+                                </div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="color:#fbbf24; font-size:0.95rem; line-height:1;">${stars}</div>
+                                <span style="font-size:0.7rem; color:var(--text-light);">${dateStr}</span>
+                            </div>
+                        </div>
+
+                        <div style="display:inline-block; font-size:0.75rem; font-weight:600; color:var(--primary); background:rgba(99,102,241,0.12); padding:2px 8px; border-radius:var(--radius-full); margin-bottom:10px;">
+                            ${escapeHtml(r.skillTopic || "Skill Exchange")}
+                        </div>
+
+                        <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.55; margin:0;">
+                            "${escapeHtml(r.feedback || "Insightful and productive session. Learned a lot from this exchange!")}"
+                        </p>
+                    </div>
+
+                    <div style="margin-top:14px; padding-top:10px; border-top:1px solid var(--border-subtle); display:flex; align-items:center; justify-content:space-between; font-size:0.75rem; color:var(--text-muted);">
+                        <span style="display:flex; align-items:center; gap:4px; color:var(--success);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            Verified Peer Exchange
+                        </span>
+                        <span>Rating: ${r.rating}.0 / 5</span>
+                    </div>
+                </div>
+            `;
+        }).join("");
+
+    } catch (err) {
+        console.error("Error fetching community rating stats:", err);
+    }
+}
+
+// Fetch and render AI Learning Impact Reports on Dashboard
+async function initDashboardImpactReports() {
+    const listEl = document.getElementById("dashboard-impact-reports-list");
+    if (!listEl) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+        listEl.innerHTML = "<p style='color:var(--text-muted); font-size:0.85rem;'>Please log in to view your learning impact records.</p>";
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/learning-impact/my-reports", {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+            listEl.innerHTML = "<p style='color:var(--text-muted); font-size:0.85rem;'>No learning impact reports found yet.</p>";
+            return;
+        }
+
+        const reports = await response.json();
+
+        if (!reports || reports.length === 0) {
+            listEl.innerHTML = `
+                <div style="padding:20px; text-align:center; background:var(--bg-page); border:1px dashed var(--border-subtle); border-radius:var(--radius-card); color:var(--text-muted);">
+                    <p style="margin:0 0 6px; font-weight:600; color:var(--text-secondary);">No Session Assessments Completed Yet</p>
+                    <p style="margin:0; font-size:0.85rem;">Take a pre-session baseline assessment when joining a live session to track your learning progression!</p>
+                </div>
+            `;
+            return;
+        }
+
+        listEl.innerHTML = reports.map(r => {
+            const analysis = r.impactAnalysis || {};
+            const change = analysis.percentagePointChange || 0;
+            const changeColor = change >= 0 ? "var(--success)" : "var(--danger)";
+            const changeSign = change > 0 ? "+" : "";
+
+            const partnerName = r.mentorId ? (r.mentorId.name || "Mentor") : "Mentor";
+            const dateStr = new Date(r.createdAt || Date.now()).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric"
+            });
+
+            const isAnalyzed = analysis.status === "analyzed";
+            const isProvisional = analysis.isProvisional || analysis.status === "provisional_review";
+            const preProctor = (r.preAssessment && r.preAssessment.proctoring) || {};
+            const postProctor = (r.postAssessment && r.postAssessment.proctoring) || {};
+
+            return `
+                <div style="padding:16px; background:var(--bg-page); border:1px solid var(--border-subtle); border-radius:var(--radius-card); display:flex; flex-direction:column; gap:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <div style="font-weight:700; font-size:0.95rem; color:var(--text-primary);">${escapeHtml(r.skill)} Proctored Learning Impact</div>
+                                ${isProvisional ? `<span style="font-size:0.68rem; font-weight:700; color:var(--danger); background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); padding:1px 6px; border-radius:var(--radius-full);">Provisional Review</span>` : ""}
+                            </div>
+                            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Session with <strong>${escapeHtml(partnerName)}</strong> • ${dateStr}</div>
+                        </div>
+                        ${(isAnalyzed || isProvisional) ? `
+                            <span style="font-weight:800; font-size:0.95rem; color:${changeColor}; background:rgba(255,255,255,0.06); padding:3px 10px; border-radius:var(--radius-full); border:1px solid var(--border-subtle);">
+                                ${changeSign}${change} pts
+                            </span>
+                        ` : `
+                            <span class="badge-self-reported">Baseline Only</span>
+                        `}
+                    </div>
+
+                    <div style="display:flex; gap:10px; font-size:0.8rem; color:var(--text-secondary);">
+                        <div style="flex:1; background:var(--bg-surface); padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="color:var(--text-muted); font-size:0.7rem; text-transform:uppercase;">Pre-Session Baseline</span>
+                                <span style="font-size:0.68rem; color:${preProctor.isFlaggedForReview ? 'var(--danger)' : 'var(--success)'}; font-weight:600;">
+                                    ${preProctor.isFlaggedForReview ? "Flagged" : "Proctored ✓"}
+                                </span>
+                            </div>
+                            <strong style="font-size:1.1rem; color:var(--text-primary); margin-top:2px; display:block;">${r.preAssessment ? r.preAssessment.score : 0}/100</strong>
+                        </div>
+                        <div style="flex:1; background:var(--bg-surface); padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="color:var(--text-muted); font-size:0.7rem; text-transform:uppercase;">Post-Session Mastery</span>
+                                <span style="font-size:0.68rem; color:${postProctor.isFlaggedForReview ? 'var(--danger)' : 'var(--success)'}; font-weight:600;">
+                                    ${r.postAssessment && r.postAssessment.completed ? (postProctor.isFlaggedForReview ? "Flagged" : "Proctored ✓") : "Pending"}
+                                </span>
+                            </div>
+                            <strong style="font-size:1.1rem; color:var(--text-primary); margin-top:2px; display:block;">${r.postAssessment && r.postAssessment.completed ? r.postAssessment.score : "Pending"}${r.postAssessment && r.postAssessment.completed ? "/100" : ""}</strong>
+                        </div>
+                    </div>
+
+                    ${(isAnalyzed || isProvisional) ? `
+                        <p style="font-size:0.83rem; color:var(--text-secondary); margin:0; line-height:1.45;">
+                            ${escapeHtml(analysis.growthSummary || "")}
+                        </p>
+                        ${isProvisional ? `<div style="font-size:0.75rem; color:var(--danger);">${escapeHtml(analysis.reviewNotice || "")}</div>` : ""}
+                        <div style="display:flex; justify-content:flex-end;">
+                            <button class="btn btn-secondary btn-sm" onclick="viewFullImpactReport('${r.sessionId ? (r.sessionId._id || r.sessionId) : ''}')">
+                                View Full Proctored Impact Report & Exercises
+                            </button>
+                        </div>
+                    ` : `
+                        <div style="font-size:0.78rem; color:var(--text-muted); font-style:italic;">
+                            Post-assessment will unlock after concluding this live session.
+                        </div>
+                    `}
+                </div>
+            `;
+        }).join("");
+
+    } catch (e) {
+        console.error("Error loading impact reports:", e);
+        listEl.innerHTML = "<p style='color:var(--text-muted); font-size:0.85rem;'>Unable to load reports.</p>";
+    }
+}
+
+// --------------------------------------------------------
+// 14. DOM Initialization
 // --------------------------------------------------------
 if (checkRouteAccess()) {
     const initApp = () => {
@@ -1054,6 +1529,8 @@ if (checkRouteAccess()) {
         initHeroCTA();
         initEditProfilePrefill();
         initDashboard();
+        initDashboardImpactReports();
+        initHomePageCommunityRatings();
     };
 
     if (document.readyState === "loading") {

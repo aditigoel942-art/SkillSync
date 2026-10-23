@@ -6,6 +6,16 @@
     <title>Connections Hub - SkillSwap</title>
     <meta name="description" content="Manage your incoming swap requests and interact with accepted partners.">
     <link rel="stylesheet" href="style.css">
+<script>
+    (function() {
+        try {
+            var t = localStorage.getItem('skillswap_theme');
+            if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        } catch(e) {}
+    })();
+</script>
 </head>
 <body>
 

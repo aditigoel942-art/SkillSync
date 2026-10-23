@@ -6,6 +6,16 @@
     <title>Discover Skills & Mentors - SkillSwap</title>
     <meta name="description" content="Discover talented peers to learn from. Connect with members who teach what you want to learn and are eager to learn your skills.">
     <link rel="stylesheet" href="style.css">
+<script>
+    (function() {
+        try {
+            var t = localStorage.getItem('skillswap_theme');
+            if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        } catch(e) {}
+    })();
+</script>
 </head>
 <body>
 
@@ -118,7 +128,7 @@
             const currentUser = getCurrentUser();
 
             try {
-                const response = await fetch("http://localhost:5000/api/users");
+                const response = await fetch("/api/users");
 
                 if (!response.ok) {
                     throw new Error("Failed to fetch users");
@@ -135,7 +145,7 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                         </div>
                         <h3>Unable to load community members</h3>
-                        <p>Please make sure the SkillSwap backend server is running on port 5000.</p>
+                        <p>Unable to connect to the backend server. Please verify the connection or try again.</p>
                         <button class="btn btn-secondary btn-sm" onclick="loadSkills()">Retry Connection</button>
                     </div>
                 `;
@@ -164,14 +174,29 @@
             users.forEach(user => {
                 const initials = getUserInitials(user.name);
                 const isSelf = currentUser && (currentUser._id === user._id);
+                const verifiedList = user.verifiedSkills || [];
 
                 const teachBadges = (user.teachSkills && user.teachSkills.length > 0)
-                    ? user.teachSkills.map(s => `<span class="badge badge-teach">${escapeHtml(s)}</span>`).join(" ")
+                    ? user.teachSkills.map(s => {
+                        const verified = verifiedList.find(v => v.skill && v.skill.toLowerCase() === s.toLowerCase());
+                        if (verified) {
+                            return `
+                                <span class="badge badge-teach" style="border:1px solid var(--success-border); background:rgba(16,185,129,0.08); color:var(--success); font-weight:600;" title="Evidence-based assessment: ${verified.estimatedLevel} (${verified.score}/100)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11" style="display:inline-block; margin-right:3px; vertical-align:-1px;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    ${escapeHtml(s)} • ${verified.estimatedLevel}
+                                </span>
+                            `;
+                        }
+                        return `<span class="badge badge-teach" title="Self-reported">${escapeHtml(s)}</span>`;
+                    }).join(" ")
                     : "<span class='text-muted text-sm'>No skills listed</span>";
 
                 const learnBadges = (user.learnSkills && user.learnSkills.length > 0)
                     ? user.learnSkills.map(s => `<span class="badge badge-learn">${escapeHtml(s)}</span>`).join(" ")
                     : "<span class='text-muted text-sm'>Open to anything</span>";
+
+                const hasVerifiedSkills = verifiedList.length > 0;
+                const bestVerified = hasVerifiedSkills ? verifiedList[0] : null;
 
                 const card = document.createElement("div");
                 card.className = "skill-card";
@@ -185,8 +210,22 @@
                     <div>
                         <div class="skill-card-header">
                             <div class="skill-card-avatar">${initials}</div>
-                            <div class="skill-card-info">
-                                <h2>${escapeHtml(user.name)}</h2>
+                            <div class="skill-card-info" style="flex:1;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                    <h2>${escapeHtml(user.name)}</h2>
+                                    <div style="display:flex; align-items:center; gap:4px;">
+                                        ${hasVerifiedSkills ? `
+                                            <span class="badge-verification-level badge-practical-level" style="font-size:0.68rem; padding:2px 7px;" title="Evidence: ${escapeHtml(bestVerified.verificationLevel || 'Practically Assessed')} (${bestVerified.estimatedLevel})">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="10" height="10"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                                                ${escapeHtml(bestVerified.verificationLevel || 'Practically Assessed')}
+                                            </span>
+                                        ` : `
+                                            <span class="badge-self-reported" style="font-size:0.68rem; padding:2px 6px;" title="Skills are self-reported by member">
+                                                Self-reported
+                                            </span>
+                                        `}
+                                    </div>
+                                </div>
                                 <div class="skill-card-location">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                                     <span>${escapeHtml(user.location || "Active Member")}</span>

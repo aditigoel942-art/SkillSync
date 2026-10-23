@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 // Load session details and verify user belongs to the session
 async function loadSessionDetails() {
     try {
-        const response = await fetch(`http://localhost:5000/api/live-sessions/${sessionId}`, {
+        const response = await fetch(`/api/live-sessions/${sessionId}`, {
             headers: {
                 "Authorization": `Bearer ${authToken}`
             }
@@ -113,6 +113,11 @@ async function loadSessionDetails() {
         document.getElementById("remote-label-name").textContent = partnerUser.name;
         document.getElementById("remote-avatar").textContent = getInitials(partnerUser.name);
         document.getElementById("remote-status-msg").textContent = `Waiting for ${partnerUser.name} to join...`;
+
+        // Check and render AI Learning Impact baseline pre-assessment
+        if (typeof checkLiveSessionImpact === "function") {
+            checkLiveSessionImpact(sessionId);
+        }
 
         return true;
     } catch (err) {
@@ -156,7 +161,7 @@ async function initLocalMedia() {
 function initSignalingSocket() {
     updateConnStatus("Connecting to signaling server...", "connecting");
 
-    socket = io("http://localhost:5000", {
+    socket = io("", {
         auth: { token: authToken },
         reconnection: true,
         reconnectionAttempts: 10
@@ -614,7 +619,7 @@ async function confirmEndSession() {
         }
 
         // Notify backend to update session status to completed
-        await fetch(`http://localhost:5000/api/live-sessions/${sessionId}/end`, {
+        await fetch(`/api/live-sessions/${sessionId}/end`, {
             method: "PUT",
             headers: {
                 "Authorization": `Bearer ${authToken}`
@@ -665,12 +670,151 @@ function stopTimer() {
     }
 }
 
+let selectedRating = 5;
+
+function initStarRatingWidget() {
+    const starButtons = document.querySelectorAll(".star-btn");
+    const ratingText = document.getElementById("star-rating-text");
+    const ratingLabels = {
+        1: "1.0 / 5 (Needs Improvement)",
+        2: "2.0 / 5 (Fair)",
+        3: "3.0 / 5 (Good Exchange)",
+        4: "4.0 / 5 (Very Good)",
+        5: "5.0 / 5 (Excellent)"
+    };
+
+    starButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const val = parseInt(btn.dataset.rating, 10);
+            selectedRating = val;
+
+            starButtons.forEach(b => {
+                const bVal = parseInt(b.dataset.rating, 10);
+                if (bVal <= val) {
+                    b.style.color = "#fbbf24";
+                    b.classList.add("active");
+                } else {
+                    b.style.color = "#475569";
+                    b.classList.remove("active");
+                }
+            });
+
+            if (ratingText) {
+                ratingText.textContent = ratingLabels[val] || `${val}.0 / 5`;
+            }
+        });
+
+        btn.addEventListener("mouseenter", () => {
+            const val = parseInt(btn.dataset.rating, 10);
+            starButtons.forEach(b => {
+                const bVal = parseInt(b.dataset.rating, 10);
+                b.style.color = (bVal <= val) ? "#fbbf24" : "#475569";
+            });
+        });
+
+        btn.addEventListener("mouseleave", () => {
+            starButtons.forEach(b => {
+                const bVal = parseInt(b.dataset.rating, 10);
+                b.style.color = (bVal <= selectedRating) ? "#fbbf24" : "#475569";
+            });
+        });
+    });
+
+    const submitBtn = document.getElementById("submit-review-btn");
+    if (submitBtn) {
+        submitBtn.addEventListener("click", handleReviewSubmit);
+    }
+}
+
+async function handleReviewSubmit() {
+    const submitBtn = document.getElementById("submit-review-btn");
+    const statusMsg = document.getElementById("review-status-msg");
+    const topicInput = document.getElementById("review-topic-input");
+    const feedbackInput = document.getElementById("review-feedback-input");
+
+    if (!partnerUser || !partnerUser._id) {
+        alert("Unable to submit review: partner details not loaded.");
+        return;
+    }
+
+    const revieweeId = partnerUser._id;
+    const skillTopic = topicInput ? topicInput.value.trim() : "";
+    const feedback = feedbackInput ? feedbackInput.value.trim() : "";
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting review...";
+    statusMsg.style.display = "block";
+    statusMsg.style.color = "#94a3b8";
+    statusMsg.textContent = "Saving your review and updating community rating...";
+
+    try {
+        const response = await fetch("/api/reviews", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${authToken}`
+            },
+            body: JSON.stringify({
+                revieweeId,
+                rating: selectedRating,
+                feedback,
+                skillTopic: skillTopic || (sessionData ? sessionData.skillTopic : "Live Skill Session"),
+                sessionId,
+                connectionId: sessionData ? sessionData.connectionId : null
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            statusMsg.style.color = "#34d399";
+            statusMsg.textContent = "Review submitted! Rating updated in community profile.";
+            submitBtn.textContent = "Review Submitted ✓";
+            submitBtn.style.background = "#059669";
+            
+            // Disable inputs after successful submission
+            if (topicInput) topicInput.disabled = true;
+            if (feedbackInput) feedbackInput.disabled = true;
+            document.querySelectorAll(".star-btn").forEach(b => b.disabled = true);
+        } else {
+            statusMsg.style.color = "#f87171";
+            statusMsg.textContent = data.message || "Failed to submit review.";
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Retry Submit";
+        }
+    } catch (err) {
+        console.error("Review submit error:", err);
+        statusMsg.style.color = "#f87171";
+        statusMsg.textContent = "Network error. Please try again.";
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Retry Submit";
+    }
+}
+
 function showSessionEndedModal(message) {
     stopTimer();
     const modal = document.getElementById("session-ended-modal");
     document.getElementById("session-summary-text").textContent = message;
     document.getElementById("final-duration").textContent = document.getElementById("session-timer").textContent;
+    
+    // Set partner name in review heading
+    const partnerHeading = document.getElementById("review-partner-heading");
+    if (partnerHeading && partnerUser) {
+        partnerHeading.textContent = `Rate your exchange with ${partnerUser.name}`;
+    }
+
+    const topicInput = document.getElementById("review-topic-input");
+    if (topicInput && partnerUser && partnerUser.teachSkills && partnerUser.teachSkills.length > 0) {
+        topicInput.value = partnerUser.teachSkills[0];
+    }
+
+    initStarRatingWidget();
     modal.classList.remove("hidden");
+
+    // Render post-session impact trigger or completed report in modal
+    if (typeof checkLiveSessionImpact === "function" && sessionId) {
+        checkLiveSessionImpact(sessionId);
+    }
 }
 
 function updateConnStatus(text, type) {

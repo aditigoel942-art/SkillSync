@@ -6,6 +6,16 @@
     <title>Create Profile & Join SkillSwap</title>
     <meta name="description" content="Join SkillSwap to exchange skills, discover mentorship, and learn collaboratively with passionate peers.">
     <link rel="stylesheet" href="style.css">
+<script>
+    (function() {
+        try {
+            var t = localStorage.getItem('skillswap_theme');
+            if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        } catch(e) {}
+    })();
+</script>
 </head>
 <body>
 

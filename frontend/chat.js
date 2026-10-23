@@ -64,7 +64,7 @@ function initSocketConnection() {
     const banner = document.getElementById("connection-banner");
     const bannerText = document.getElementById("banner-text");
 
-    socket = io("http://localhost:5000", {
+    socket = io("", {
         auth: {
             token: authToken
         },
@@ -142,7 +142,7 @@ async function loadConnections() {
     const countBadge = document.getElementById("connections-count");
 
     try {
-        const response = await fetch(`http://localhost:5000/api/accepted-connections/${currentUser._id}`);
+        const response = await fetch(`/api/accepted-connections/${currentUser._id}`);
         if (!response.ok) throw new Error("Failed to fetch connections");
 
         acceptedConnections = await response.json();
@@ -280,7 +280,7 @@ async function loadMessages(connectionId) {
     messagesList.innerHTML = `<div class="chat-loading-state"><p>Loading messages...</p></div>`;
 
     try {
-        const response = await fetch(`http://localhost:5000/api/messages/${connectionId}`, {
+        const response = await fetch(`/api/messages/${connectionId}`, {
             headers: {
                 "Authorization": `Bearer ${authToken}`
             }
@@ -497,7 +497,7 @@ async function startLiveSession(connectionId, participantId) {
     }
 
     try {
-        const response = await fetch("http://localhost:5000/api/live-sessions", {
+        const response = await fetch("/api/live-sessions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

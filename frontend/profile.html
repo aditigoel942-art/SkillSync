@@ -6,6 +6,16 @@
     <title>Member Profile - SkillSwap</title>
     <meta name="description" content="View member skills, bio, and skill swap interests.">
     <link rel="stylesheet" href="style.css">
+<script>
+    (function() {
+        try {
+            var t = localStorage.getItem('skillswap_theme');
+            if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        } catch(e) {}
+    })();
+</script>
 </head>
 <body>
 
@@ -39,36 +49,104 @@
 
     <script>
         const params = new URLSearchParams(window.location.search);
-        const currentUser = getCurrentUser();
-        const userId = params.get("id") || (currentUser ? currentUser._id : null);
+        let currentUser = getCurrentUser();
+        let targetId = params.get("id");
 
         async function loadProfile() {
             const container = document.getElementById("profileContainer");
+            if (!container) return;
 
-            if (!userId) {
+            // If neither param nor logged in user, prompt to sign in or explore
+            if (!targetId && !currentUser) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                         </div>
                         <h3>Member Profile Not Found</h3>
-                        <p>Please log in or select a member from the Discover page.</p>
-                        <a href="browse-skills.html" class="btn btn-primary btn-sm">Discover Skills</a>
+                        <p>Please sign in to view your profile or discover active community members.</p>
+                        <div style="display:flex; justify-content:center; gap:10px; margin-top:16px;">
+                            <a href="login.html" class="btn btn-primary btn-sm">Sign In</a>
+                            <a href="browse-skills.html" class="btn btn-secondary btn-sm">Discover Skills</a>
+                        </div>
                     </div>
                 `;
                 return;
             }
 
-            try {
-                const response = await fetch("http://localhost:5000/api/users/" + userId);
-                if (!response.ok) throw new Error("User not found");
+            const idToFetch = targetId || (currentUser ? currentUser._id : null);
 
-                const user = await response.json();
-                const isSelf = currentUser && (currentUser._id === user._id);
+            try {
+                let user = null;
+                
+                // If viewing self and we don't have targetId, prioritize logged in user
+                if (!targetId && currentUser) {
+                    user = currentUser;
+                }
+
+                // If fetching a specific id or validating user from backend
+                if (idToFetch) {
+                    const response = await fetch("/api/users/" + idToFetch);
+                    if (response.ok) {
+                        user = await response.json();
+                        // If this was our own profile, keep localStorage fresh
+                        if (currentUser && currentUser._id === user._id) {
+                            localStorage.setItem("currentUser", JSON.stringify(user));
+                            currentUser = user;
+                        }
+                    } else if (response.status === 404 && currentUser && (!targetId || targetId === currentUser._id)) {
+                        // User exists locally in session
+                        user = currentUser;
+                    }
+                }
+
+                if (!user) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                            </div>
+                            <h3>Member Not Found</h3>
+                            <p>The requested member profile could not be located. Browse active members to connect.</p>
+                            <a href="browse-skills.html" class="btn btn-primary btn-sm">Discover Skills</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const resolvedUserId = user._id;
+                activeTargetUserId = resolvedUserId;
+                const isSelf = currentUser && (currentUser._id === resolvedUserId || currentUser.email === user.email);
                 const initials = getUserInitials(user.name);
+                const verifiedList = user.verifiedSkills || [];
 
                 const teachBadges = (user.teachSkills && user.teachSkills.length > 0)
-                    ? user.teachSkills.map(s => `<span class="badge badge-teach">${escapeHtml(s)}</span>`).join(" ")
+                    ? user.teachSkills.map(s => {
+                        const verified = verifiedList.find(v => v.skill && v.skill.toLowerCase() === s.toLowerCase());
+                        if (verified) {
+                            const levelLabel = verified.verificationLevel || "Practically Assessed";
+                            return `
+                                <div style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.3); border-radius:var(--radius-full); margin:3px 2px;">
+                                    <span style="font-weight:600; color:var(--text-primary); font-size:0.88rem;">${escapeHtml(s)}</span>
+                                    <span class="badge-verification-level badge-practical-level" style="padding:1px 6px; font-size:0.68rem;" title="Live AI-Proctored Evidence">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="10" height="10"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                                        ${escapeHtml(levelLabel)}
+                                    </span>
+                                    <span class="badge-level badge-level-${(verified.estimatedLevel || "intermediate").toLowerCase()}" style="font-size:0.68rem; padding:1px 6px;">
+                                        ${verified.estimatedLevel} (${verified.score}/100)
+                                    </span>
+                                </div>
+                            `;
+                        }
+                        return `
+                            <div style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; background:var(--bg-muted); border:1px solid var(--border-subtle); border-radius:var(--radius-full); margin:3px 2px;">
+                                <span style="font-weight:500; color:var(--text-secondary); font-size:0.88rem;">${escapeHtml(s)}</span>
+                                <span class="badge-self-reported" style="font-size:0.68rem; padding:1px 5px;" title="Skill is self-reported by user">
+                                    Self-reported
+                                </span>
+                            </div>
+                        `;
+                    }).join(" ")
                     : "<span class='text-muted text-sm'>No skills listed</span>";
 
                 const learnBadges = (user.learnSkills && user.learnSkills.length > 0)
@@ -76,15 +154,19 @@
                     : "<span class='text-muted text-sm'>Open to anything</span>";
 
                 const actionsHtml = isSelf
-                    ? `<div style="display:flex; align-items:center; gap:10px;">
+                    ? `<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                           <a href="dashboard.html" class="btn btn-primary">
+                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                               Verify Skills on Dashboard
+                           </a>
                            <a href="signup.html" class="btn btn-secondary">
-                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                                Edit Profile
                            </a>
                            <span class="badge badge-neutral">Your Personal Profile</span>
                        </div>`
                     : `<div style="display:flex; align-items:center; gap:12px;">
-                           <button id="connectBtn" class="btn btn-primary" onclick="sendConnectionRequest()">
+                           <button id="connectBtn" class="btn btn-primary" onclick="sendConnectionRequest('${resolvedUserId}')">
                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
                                Connect with ${escapeHtml(user.name.split(" ")[0])}
                            </button>
@@ -144,8 +226,37 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Peer Reviews & Community Ratings Section -->
+                        <div class="profile-section-card" style="margin-top:24px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                                <div>
+                                    <h3 style="margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+                                        <span style="color:#f59e0b;">★</span>
+                                        Peer Reviews & Session Rating
+                                    </h3>
+                                    <p class="text-sm text-muted">Direct feedback left by peers who engaged in 1-on-1 skill exchange sessions with ${escapeHtml(user.name.split(" ")[0])}.</p>
+                                </div>
+                                <div id="profile-rating-badge" style="display:flex; align-items:center; gap:10px; padding:6px 14px; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); border-radius:var(--radius-card);">
+                                    <span style="font-size:1.3rem; font-weight:800; color:#d97706;" id="profile-rating-num">5.0</span>
+                                    <div>
+                                        <div style="color:#fbbf24; font-size:0.9rem; line-height:1;">★★★★★</div>
+                                        <span style="font-size:0.75rem; color:var(--text-muted);" id="profile-review-count">Loading reviews...</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="profile-reviews-list" style="display:flex; flex-direction:column; gap:12px;">
+                                <div style="padding:16px; text-align:center; color:var(--text-muted);">
+                                    <p>Loading member reviews...</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 `;
+
+                // Load dynamic reviews for this user
+                loadUserReviews(resolvedUserId);
             } catch (error) {
                 console.error("Profile load error:", error);
                 container.innerHTML = `
@@ -161,10 +272,13 @@
             }
         }
 
-        async function sendConnectionRequest() {
-            const currentUser = getCurrentUser();
+        let activeTargetUserId = null;
 
-            if (!currentUser) {
+        async function sendConnectionRequest(targetUserId) {
+            const current = getCurrentUser();
+            const recipient = targetUserId || activeTargetUserId;
+
+            if (!current) {
                 showToast("Please sign in first to connect", "info");
                 setTimeout(() => {
                     window.location.href = "login.html";
@@ -172,7 +286,7 @@
                 return;
             }
 
-            if (currentUser._id === userId) {
+            if (current._id === recipient) {
                 showToast("You cannot connect with your own profile", "info");
                 return;
             }
@@ -184,14 +298,14 @@
             }
 
             try {
-                const response = await fetch("http://localhost:5000/api/connections", {
+                const response = await fetch("/api/connections", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        sender: currentUser._id,
-                        receiver: userId
+                        sender: current._id,
+                        receiver: recipient
                     })
                 });
 
@@ -217,6 +331,66 @@
                     button.disabled = false;
                     button.textContent = "Connect";
                 }
+            }
+        }
+
+        async function loadUserReviews(targetUserId) {
+            const listEl = document.getElementById("profile-reviews-list");
+            const ratingNumEl = document.getElementById("profile-rating-num");
+            const countEl = document.getElementById("profile-review-count");
+
+            if (!listEl) return;
+
+            try {
+                const res = await fetch(`/api/reviews/user/${targetUserId}`);
+                const data = await res.json();
+
+                if (ratingNumEl) ratingNumEl.textContent = data.averageRating ? data.averageRating.toFixed(1) : "5.0";
+                if (countEl) {
+                    const cnt = data.totalReviews || 0;
+                    countEl.textContent = cnt === 1 ? "1 peer review" : `${cnt} peer reviews`;
+                }
+
+                const reviews = data.reviews || [];
+                if (reviews.length === 0) {
+                    listEl.innerHTML = `
+                        <div style="padding:20px; text-align:center; background:var(--bg-page); border:1px dashed var(--border-subtle); border-radius:var(--radius-card); color:var(--text-muted);">
+                            <p style="margin:0 0 4px; font-weight:600; color:var(--text-secondary);">No reviews yet for this member</p>
+                            <p style="font-size:0.85rem; margin:0;">Complete a live skill exchange session to leave the first verified rating!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                listEl.innerHTML = reviews.map(r => {
+                    const reviewerName = r.reviewer ? (r.reviewer.name || "Peer Learner") : "Peer Learner";
+                    const reviewerInitials = getUserInitials(reviewerName);
+                    const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+                    const dateFormatted = new Date(r.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+
+                    return `
+                        <div style="background:var(--bg-page); border:1px solid var(--border-subtle); border-radius:var(--radius-card); padding:16px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <div class="dropdown-avatar" style="width:34px; height:34px; font-size:0.85rem;">${reviewerInitials}</div>
+                                    <div>
+                                        <div style="font-weight:600; font-size:0.95rem; color:var(--text-primary);">${escapeHtml(reviewerName)}</div>
+                                        <div style="font-size:0.75rem; color:var(--text-muted);">${dateFormatted} • Exchange: <span style="color:var(--primary); font-weight:600;">${escapeHtml(r.skillTopic || "Skill Session")}</span></div>
+                                    </div>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <span style="color:#fbbf24; font-size:1rem; letter-spacing:1px;">${stars}</span>
+                                    <span style="font-size:0.85rem; font-weight:700; color:var(--text-primary);">${r.rating}.0</span>
+                                </div>
+                            </div>
+                            <p style="font-size:0.9rem; color:var(--text-secondary); margin:0; line-height:1.5;">${escapeHtml(r.feedback || "Great peer exchange session!")}</p>
+                        </div>
+                    `;
+                }).join("");
+
+            } catch (err) {
+                console.error("Error loading profile reviews:", err);
+                listEl.innerHTML = "<p style='color:var(--text-muted); font-size:0.85rem;'>Unable to load reviews at this time.</p>";
             }
         }
 
