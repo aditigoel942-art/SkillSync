@@ -3,6 +3,7 @@ const Connection = require("./connectionModel");
 const Message = require("./messageModel");
 const User = require("./userModel");
 const LiveSession = require("./liveSessionModel");
+const { memoryStore, isMongoActive } = require("./memoryStore");
 
 const JWT_SECRET = process.env.JWT_SECRET || "skillswap_jwt_secret_key_2026_super_secure";
 
@@ -30,7 +31,18 @@ function setupSocketIO(io) {
                 return next(new Error("Authentication error: Invalid token"));
             }
 
-            const user = await User.findById(decoded.userId).select("_id name email teachSkills learnSkills");
+            let user = null;
+            if (isMongoActive()) {
+                try {
+                    user = await User.findById(decoded.userId).select("_id name email teachSkills learnSkills");
+                } catch {
+                    user = null;
+                }
+            }
+            if (!user) {
+                user = memoryStore.findUserById(decoded.userId);
+            }
+
             if (!user) {
                 return next(new Error("Authentication error: User does not exist"));
             }
@@ -88,7 +100,18 @@ function setupSocketIO(io) {
                 }
 
                 // SECURITY CHECK: Verify accepted connection between socket.userId and receiverId
-                const connection = await Connection.findById(connectionId);
+                let connection = null;
+                if (isMongoActive()) {
+                    try {
+                        connection = await Connection.findById(connectionId);
+                    } catch {
+                        connection = null;
+                    }
+                }
+                if (!connection) {
+                    connection = memoryStore.getConnectionById(connectionId);
+                }
+
                 if (!connection) {
                     const errRes = { success: false, message: "Connection not found" };
                     if (typeof callback === "function") callback(errRes);
@@ -102,8 +125,8 @@ function setupSocketIO(io) {
                 }
 
                 const senderId = socket.userId;
-                const p1 = connection.sender.toString();
-                const p2 = connection.receiver.toString();
+                const p1 = (connection.sender._id || connection.sender).toString();
+                const p2 = (connection.receiver._id || connection.receiver).toString();
 
                 const isSenderParticipant = (senderId === p1 || senderId === p2);
                 const isReceiverParticipant = (receiverId.toString() === p1 || receiverId.toString() === p2);
@@ -115,18 +138,27 @@ function setupSocketIO(io) {
                     return socket.emit("chatError", errRes);
                 }
 
-                // Save message in MongoDB
-                const savedMessage = await Message.create({
-                    sender: senderId,
-                    receiver: receiverId,
-                    connection: connectionId,
-                    message: message.trim(),
-                    read: false
-                });
+                let populatedMessage = null;
+                if (isMongoActive()) {
+                    try {
+                        const savedMessage = await Message.create({
+                            sender: senderId,
+                            receiver: receiverId,
+                            connection: connectionId,
+                            message: message.trim(),
+                            read: false
+                        });
+                        populatedMessage = await Message.findById(savedMessage._id)
+                            .populate("sender", "name email")
+                            .populate("receiver", "name email");
+                    } catch {
+                        populatedMessage = null;
+                    }
+                }
 
-                const populatedMessage = await Message.findById(savedMessage._id)
-                    .populate("sender", "name email")
-                    .populate("receiver", "name email");
+                if (!populatedMessage) {
+                    populatedMessage = memoryStore.createMessage(senderId, receiverId, connectionId, message.trim());
+                }
 
                 // Emit to receiver's personal room
                 io.to("user_" + receiverId).emit("receiveMessage", populatedMessage);
@@ -151,20 +183,39 @@ function setupSocketIO(io) {
                 const { connectionId } = data;
                 if (!connectionId) return;
 
-                const connection = await Connection.findById(connectionId);
+                let connection = null;
+                if (isMongoActive()) {
+                    try {
+                        connection = await Connection.findById(connectionId);
+                    } catch {
+                        connection = null;
+                    }
+                }
+                if (!connection) {
+                    connection = memoryStore.getConnectionById(connectionId);
+                }
+
                 if (!connection || connection.status !== "accepted") return;
 
                 const currentUserId = socket.userId;
-                const p1 = connection.sender.toString();
-                const p2 = connection.receiver.toString();
+                const p1 = (connection.sender._id || connection.sender).toString();
+                const p2 = (connection.receiver._id || connection.receiver).toString();
                 if (currentUserId !== p1 && currentUserId !== p2) return;
 
                 const otherUserId = (p1 === currentUserId) ? p2 : p1;
 
-                await Message.updateMany(
-                    { connection: connectionId, receiver: currentUserId, read: false },
-                    { $set: { read: true } }
-                );
+                if (isMongoActive()) {
+                    try {
+                        await Message.updateMany(
+                            { connection: connectionId, receiver: currentUserId, read: false },
+                            { $set: { read: true } }
+                        );
+                    } catch {
+                        memoryStore.markMessagesAsRead(connectionId, currentUserId);
+                    }
+                } else {
+                    memoryStore.markMessagesAsRead(connectionId, currentUserId);
+                }
 
                 // Notify sender that their messages have been read
                 io.to("user_" + otherUserId).emit("messagesRead", {
@@ -199,9 +250,19 @@ function setupSocketIO(io) {
                     return;
                 }
 
-                const session = await LiveSession.findById(sessionId)
-                    .populate("host", "name email teachSkills learnSkills")
-                    .populate("participant", "name email teachSkills learnSkills");
+                let session = null;
+                if (isMongoActive()) {
+                    try {
+                        session = await LiveSession.findById(sessionId)
+                            .populate("host", "name email teachSkills learnSkills")
+                            .populate("participant", "name email teachSkills learnSkills");
+                    } catch {
+                        session = null;
+                    }
+                }
+                if (!session) {
+                    session = memoryStore.getLiveSessionById(sessionId);
+                }
 
                 if (!session) {
                     if (typeof callback === "function") callback({ success: false, message: "Live session not found" });
@@ -214,8 +275,8 @@ function setupSocketIO(io) {
                 }
 
                 const currentUserId = socket.userId;
-                const hostId = session.host._id.toString();
-                const participantId = session.participant._id.toString();
+                const hostId = (session.host._id || session.host).toString();
+                const participantId = (session.participant._id || session.participant).toString();
 
                 if (currentUserId !== hostId && currentUserId !== participantId) {
                     if (typeof callback === "function") callback({ success: false, message: "Unauthorized to join this live session" });
@@ -223,7 +284,19 @@ function setupSocketIO(io) {
                 }
 
                 // Verify accepted connection
-                const connection = await Connection.findById(session.connectionId);
+                let connection = null;
+                const rawConnId = session.connectionId._id || session.connectionId;
+                if (isMongoActive()) {
+                    try {
+                        connection = await Connection.findById(rawConnId);
+                    } catch {
+                        connection = null;
+                    }
+                }
+                if (!connection) {
+                    connection = memoryStore.getConnectionById(rawConnId);
+                }
+
                 if (!connection || connection.status !== "accepted") {
                     if (typeof callback === "function") callback({ success: false, message: "Underlying connection is not accepted" });
                     return;
